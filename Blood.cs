@@ -55,7 +55,7 @@ public class BloodMod : PartialityMod
     public BloodMod()
     {
         this.ModID = "Blood";
-        this.Version = "v1.0a";
+        this.Version = "v0.99a";
         this.author = "LeeMoriya";
     }
     public override void OnEnable()

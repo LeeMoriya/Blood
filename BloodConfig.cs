@@ -78,7 +78,7 @@ public class BloodConfig : OptionInterface
         this.resetButton.description = "Reset this creature's blood color to the mod's default.";
         this.modName = new OpLabel(new Vector2(400f, 552f), new Vector2(0f, 0f), "BLOOD MOD", FLabelAlignment.Center, true);
         this.modCredit = new OpLabel(new Vector2(400f, 532f), new Vector2(0f, 0f), "Created by LeeMoriya", FLabelAlignment.Center, false);
-        this.modVersion = new OpLabel(new Vector2(400f, 518f), new Vector2(0f, 0f), "Version: 1.0a", FLabelAlignment.Center, false);
+        this.modVersion = new OpLabel(new Vector2(400f, 518f), new Vector2(0f, 0f), "Version: 0.99a", FLabelAlignment.Center, false);
         this.g = new OpLabel(new Vector2(310f, 40f), new Vector2(0f, 0f), "G", FLabelAlignment.Center, true);
         this.g.color = fadeOut;
         this.o = new OpLabel(new Vector2(370f, 40f), new Vector2(0f, 0f), "O", FLabelAlignment.Center, true);
