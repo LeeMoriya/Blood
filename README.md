@@ -21,7 +21,9 @@ This mod adds new blood effects to the game, making combat and creature interact
 
 ## Installation
 #### The latest version of ConfigMachine is required
-Drop the Blood.dll file from the downloads page [Here] into your 'Mods' direction and enable it in the Partiality Launcher
+Grab the latest release of the mod from the Releases page here by clicking the Blood.dll file. Drop it into your 'Mods' folder and enable it in the Partiality Launcher
+
+![GitHub Logo](https://imgur.com/zXrdnHV.png)
 
 ## Bug Reports:
 Please send any bugs or oddities you find to me directly on Discord: LeeMoriya#0257 or @ me in the #modding_support channel in the Rain World Discord Server
