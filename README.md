@@ -21,7 +21,7 @@ This mod adds new blood effects to the game, making combat and creature interact
 
 ## Installation
 #### The latest version of ConfigMachine is required
-Grab the latest release of the mod from the Releases page here by clicking the Blood.dll file. Drop it into your 'Mods' folder and enable it in the Partiality Launcher
+[Grab the latest release of the mod from the Releases page](https://github.com/LeeMoriya/Blood/releases) by clicking the Blood.dll file. Drop it into your 'Mods' folder and enable it in the Partiality Launcher
 
 ![GitHub Logo](https://imgur.com/zXrdnHV.png)
 
