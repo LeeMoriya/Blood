@@ -6,18 +6,23 @@ This mod adds new blood effects to the game, making combat and creature interact
 #### Blood effects, created by:
 
 - Impaling creatures with spears
-- Lizard bites
-- Being impaled by a Noodle Fly
+- Getting bitten by a Lizard
+- Getting impaled by a Noodle Fly
 - Getting grabbed by a Vulture
-- Eating Batflies
+- Getting impaled by King Tusks
+- Eating smaller creatures
+- Hitting creatures with rocks
+- Eating meat as Hunter
 
 #### Blood splatters:
 
 - Drops of blood leave behind splatters on surfaces.
 
-#### Blood colors:
+#### Config Screen:
 
-- Individual creature blood colors are configurable in the mod's config screen. (Which may contain a secret...)
+- Blood colors for each creature are configurable.
+- Select from a 'Realistic' and 'Vibrant' color preset.
+- Enable Bloodlust mode to amplify blood effects.
 
 ## Installation
 #### The latest version of ConfigMachine is required
