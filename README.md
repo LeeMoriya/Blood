@@ -12,7 +12,7 @@ This mod adds new blood effects to the game, making combat and creature interact
 - Getting impaled by King Tusks
 - Eating smaller creatures
 - Hitting creatures with rocks
-- Eating meat as Hunter
+- Eating large creature corpses
 
 #### Blood splatters:
 
