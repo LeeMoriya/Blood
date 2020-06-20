@@ -52,7 +52,6 @@ public class BloodEmitter : UpdatableAndDeletable
         this.velocity = Mathf.Lerp(maxVelocity * UnityEngine.Random.Range(0.5f, 1f), -1f, Mathf.PingPong(Time.time - this.currentTime, 1));
         if (this.emitPos.y > this.room.RoomRect.top + 100f)
         {
-            Debug.Log("Blood: Too high above the room, emitter destroyed");
             Destroy();
         }
         if (this.chunk == null)
@@ -70,7 +69,6 @@ public class BloodEmitter : UpdatableAndDeletable
         }
         if (this.bleedTime <= 0f)
         {
-            Debug.Log("Blood: Finished bleeding, emitter destroyed");
             this.Destroy();
         }
         else if (!(this.chunk.owner as Creature).inShortcut)
@@ -136,7 +134,6 @@ public class BloodParticle : CosmeticSprite
         }
         else
         {
-            Debug.Log("Emitter is NULL");
             this.vel = angle;
             this.bleedTime = 1f;
             this.initialBleedTime = 1f;
@@ -248,13 +245,13 @@ public class BloodParticle : CosmeticSprite
         {
             if (this.bleedTime > this.emitter.initialBleedTime * 0.985f)
             {
-                sLeaser.sprites[1].alpha = Mathf.Lerp(0.8f, 0.65f + (BloodMod.goreMultiplier * 0.3f), Mathf.InverseLerp(0f, 30f, this.vel.magnitude));
+                sLeaser.sprites[1].alpha = Mathf.Lerp(0.8f, 0.65f + (BloodMod.goreMultiplier * 0.35f), Mathf.InverseLerp(0f, 30f, this.vel.magnitude));
                 sLeaser.sprites[1].scale = Mathf.Lerp(3f + (BloodMod.goreMultiplier * 2), 2f, Mathf.InverseLerp(0f, 30f, this.vel.magnitude));
             }
             else
             {
-                sLeaser.sprites[1].alpha = Mathf.Lerp(0.55f, 0.25f + (BloodMod.goreMultiplier * 0.13f), Mathf.InverseLerp(0f, 30f, this.vel.magnitude));
-                sLeaser.sprites[1].scale = Mathf.Lerp(2f + BloodMod.goreMultiplier, 18f, Mathf.InverseLerp(0f, 30f, this.vel.magnitude));
+                sLeaser.sprites[1].alpha = Mathf.Lerp(0.55f, 0.25f + (BloodMod.goreMultiplier * 0.2f), Mathf.InverseLerp(0f, 30f, this.vel.magnitude));
+                sLeaser.sprites[1].scale = Mathf.Lerp(2f + (BloodMod.goreMultiplier * 1.3f), 18f, Mathf.InverseLerp(0f, 30f, this.vel.magnitude));
             }
         }
         else

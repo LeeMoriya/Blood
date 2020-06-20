@@ -13,10 +13,98 @@ public class BloodHooks
         On.BigNeedleWorm.Swish += BigNeedleWorm_Swish;
         On.Vulture.Carry += Vulture_Carry;
         On.Room.Update += Room_Update;
-        On.Spear.TryImpaleSmallCreature += Spear_TryImpaleSmallCreature;
         On.Fly.BitByPlayer += Fly_BitByPlayer;
+        On.KingTusks.ThisCreatureImpaled += KingTusks_ThisCreatureImpaled;
+        On.EggBugEgg.BitByPlayer += EggBugEgg_BitByPlayer;
+        On.JellyFish.BitByPlayer += JellyFish_BitByPlayer;
+        On.SmallNeedleWorm.BitByPlayer += SmallNeedleWorm_BitByPlayer;
+        On.Centipede.BitByPlayer += Centipede_BitByPlayer;
+        On.VultureGrub.BitByPlayer += VultureGrub_BitByPlayer;
+        On.Hazer.BitByPlayer += Hazer_BitByPlayer;
+        On.Player.EatMeatUpdate += Player_EatMeatUpdate;
+        On.Rock.HitSomething += Rock_HitSomething;
     }
 
+    private static bool Rock_HitSomething(On.Rock.orig_HitSomething orig, Rock self, SharedPhysics.CollisionResult result, bool eu)
+    {
+        if (result.obj == null)
+        {
+            return false;
+        }
+        if (result.obj is Creature)
+        {
+            self.room.AddObject(new BloodParticle(self.bodyChunks[0].pos, new Vector2(UnityEngine.Random.Range(-3f, 3f), UnityEngine.Random.Range(5f, 10f)), BloodMod.creatureColors[(result.obj as Creature).Template.type.ToString()], (result.obj as Creature).Template.type.ToString() + "Tex", null, 2f));
+        }
+        orig.Invoke(self, result, eu);
+        return true;
+    }
+
+    private static void Player_EatMeatUpdate(On.Player.orig_EatMeatUpdate orig, Player self)
+    {
+        if(self.grasps[0] != null && self.grasps[0].grabbed is Creature)
+        {
+            if((self.eatMeat > 45 && self.eatMeat < 50) || (self.eatMeat > 55 && self.eatMeat < 60) || (self.eatMeat > 65 && self.eatMeat < 75))
+            {
+                self.room.AddObject(new BloodParticle(self.bodyChunks[0].pos, new Vector2(UnityEngine.Random.Range(-3f, 3f), UnityEngine.Random.Range(5f, 10f)), BloodMod.creatureColors[(self.grasps[0].grabbedChunk.owner as Creature).Template.type.ToString()], (self.grasps[0].grabbedChunk.owner as Creature).Template.type.ToString() + "Tex", null, 2.3f));
+            }
+        }
+        orig.Invoke(self);
+    }
+
+    //Small Creatures
+    private static void Hazer_BitByPlayer(On.Hazer.orig_BitByPlayer orig, Hazer self, Creature.Grasp grasp, bool eu)
+    {
+        orig.Invoke(self, grasp, eu);
+        for (int i = 0; i < 2; i++)
+        {
+            self.room.AddObject(new BloodParticle(self.bodyChunks[0].pos, new Vector2(UnityEngine.Random.Range(-3f, 3f), UnityEngine.Random.Range(1f, 5f)), BloodMod.creatureColors["Hazer"], "HazerTex", null, 1.3f));
+        }
+    }
+
+    private static void VultureGrub_BitByPlayer(On.VultureGrub.orig_BitByPlayer orig, VultureGrub self, Creature.Grasp grasp, bool eu)
+    {
+        orig.Invoke(self, grasp, eu);
+        for (int i = 0; i < 2; i++)
+        {
+            self.room.AddObject(new BloodParticle(self.bodyChunks[0].pos, new Vector2(UnityEngine.Random.Range(-3f, 3f), UnityEngine.Random.Range(1f, 5f)), BloodMod.creatureColors["VultureGrub"], "VultureGrubTex", null, 1.3f));
+        }
+    }
+
+    private static void Centipede_BitByPlayer(On.Centipede.orig_BitByPlayer orig, Centipede self, Creature.Grasp grasp, bool eu)
+    {
+        orig.Invoke(self, grasp, eu);
+        for (int i = 0; i < 2; i++)
+        {
+            self.room.AddObject(new BloodParticle(self.bodyChunks[0].pos, new Vector2(UnityEngine.Random.Range(-3f, 3f), UnityEngine.Random.Range(1f, 5f)), BloodMod.creatureColors["SmallCentipede"], "SmallCentipedeTex", null, 1.3f));
+        }
+    }
+
+    private static void SmallNeedleWorm_BitByPlayer(On.SmallNeedleWorm.orig_BitByPlayer orig, SmallNeedleWorm self, Creature.Grasp grasp, bool eu)
+    {
+        orig.Invoke(self, grasp, eu);
+        for (int i = 0; i < 2; i++)
+        {
+            self.room.AddObject(new BloodParticle(self.bodyChunks[0].pos, new Vector2(UnityEngine.Random.Range(-3f, 3f), UnityEngine.Random.Range(1f, 5f)), BloodMod.creatureColors["SmallNeedleWorm"], "SmallNeedleWormTex", null, 1.3f));
+        }
+    }
+
+    private static void JellyFish_BitByPlayer(On.JellyFish.orig_BitByPlayer orig, JellyFish self, Creature.Grasp grasp, bool eu)
+    {
+        orig.Invoke(self, grasp, eu);
+        for (int i = 0; i < 2; i++)
+        {
+            self.room.AddObject(new BloodParticle(self.bodyChunks[0].pos, new Vector2(UnityEngine.Random.Range(-3f, 3f), UnityEngine.Random.Range(1f, 5f)), BloodMod.creatureColors["JellyFish"], "JellyFishTex", null, 1.3f));
+        }
+    }
+
+    private static void EggBugEgg_BitByPlayer(On.EggBugEgg.orig_BitByPlayer orig, EggBugEgg self, Creature.Grasp grasp, bool eu)
+    {
+        orig.Invoke(self, grasp, eu);
+        for (int i = 0; i < 2; i++)
+        {
+            self.room.AddObject(new BloodParticle(self.bodyChunks[0].pos, new Vector2(UnityEngine.Random.Range(-3f, 3f), UnityEngine.Random.Range(1f, 5f)), BloodMod.creatureColors["EggBug"], "EggBugTex", null, 1.3f));
+        }
+    }
     private static void Fly_BitByPlayer(On.Fly.orig_BitByPlayer orig, Fly self, Creature.Grasp grasp, bool eu)
     {
         orig.Invoke(self, grasp, eu);
@@ -26,10 +114,24 @@ public class BloodHooks
         }
     }
 
-    private static void Spear_TryImpaleSmallCreature(On.Spear.orig_TryImpaleSmallCreature orig, Spear self, Creature smallCrit)
+    //Impaled by KingTusks
+    private static bool KingTusks_ThisCreatureImpaled(On.KingTusks.orig_ThisCreatureImpaled orig, KingTusks self, AbstractCreature crit)
     {
-        orig.Invoke(self, smallCrit);
+        for (int i = 0; i < self.tusks.Length; i++)
+        {
+            if (self.tusks[i].impaleChunk != null && self.tusks[i].impaleChunk.owner is Creature && (self.tusks[i].impaleChunk.owner as Creature).abstractCreature == crit)
+            {
+                if (!BloodMod.chunkTracker.Contains(self.tusks[i].impaleChunk))
+                {
+                    self.vulture.room.AddObject(new BloodEmitter(null, crit.realizedCreature.mainBodyChunk, 8f, 4f));
+                    BloodMod.chunkTracker.Add(self.tusks[i].impaleChunk);
+                }
+                return true;
+            }
+        }
+        return false;
     }
+
 
     private static void Room_Update(On.Room.orig_Update orig, Room self)
     {
@@ -48,13 +150,18 @@ public class BloodHooks
                 }
             }
         }
+        Player player = (self.game.Players.Count <= 0) ? null : (self.game.Players[0].realizedCreature as Player);
+        if (player != null && !player.dead)
+        {
+            BloodMod.impaled = false;
+        }
     }
 
     private static void Vulture_Carry(On.Vulture.orig_Carry orig, Vulture self)
     {
         //Add creature to a list once grabbed to prevent multiple emitters being spawned
         orig.Invoke(self);
-        if (self.grasps[0].grabbedChunk.owner is Creature)
+        if (self != null & self.grasps[0].grabbedChunk != null && self.grasps[0].grabbedChunk.owner is Creature)
         {
             if (!BloodMod.chunkTracker.Contains(self.grasps[0].grabbedChunk))
             {
@@ -91,7 +198,6 @@ public class BloodHooks
         if (self.stuckInChunk != null)
         {
             self.room.AddObject(new BloodEmitter(self, self.stuckInChunk, UnityEngine.Random.Range(5f, 8f), UnityEngine.Random.Range(1f, 3f)));
-            Debug.Log("Blood: Creating new blood emitter");
         }
     }
 }
