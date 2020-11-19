@@ -23,6 +23,9 @@ public class BloodSplatter : UpdatableAndDeletable, IDrawable
     public bool once;
     public IntVector2? skyPosition;
     public float alphaFade;
+    public float rainIntensity;
+    public float dripTime;
+    public bool drip;
     public BloodSplatter(Vector2 pos, string color, float scale)
     {
         this.washable = false;
@@ -32,6 +35,7 @@ public class BloodSplatter : UpdatableAndDeletable, IDrawable
         this.pos = pos;
         this.scale = scale;
         this.gridDiv = 1;
+        this.dripTime = UnityEngine.Random.Range(1f,2f);
         this.quad = new Vector2[4];
         this.quad[0] = this.pos + new Vector2(-this.scale, this.scale);
         this.quad[1] = this.pos + new Vector2(this.scale, this.scale);
@@ -53,14 +57,19 @@ public class BloodSplatter : UpdatableAndDeletable, IDrawable
 
     public override void Update(bool eu)
     {
-        if (BloodMod.wash && !this.once)
+        if (!BloodMod.wash)
         {
             if (BloodMod.compat)
             {
                 foreach (PartialityMod mod in PartialityManager.Instance.modManager.loadedMods)
                 {
-                    if (mod.GetType().FullName == "Downpour")
+                    if (mod.ModID == "Downpour")
                     {
+                        FieldInfo r = mod.GetType().Assembly.GetType("RainFall").GetField("rainIntensity");
+                        if(r!= null)
+                        {
+                            this.rainIntensity = (float)r.GetValue(null);
+                        }
                         FieldInfo f = mod.GetType().GetField("snow");
                         if (f != null && !(bool)f.GetValue(mod))
                         {
@@ -70,15 +79,29 @@ public class BloodSplatter : UpdatableAndDeletable, IDrawable
                     }
                 }
             }
-            if (RayTraceSky(new Vector2(0f, 1f)))
+        }
+        if (!this.once && BloodMod.wash && BloodMod.compat)
+        {
+            foreach (PartialityMod mod in PartialityManager.Instance.modManager.loadedMods)
+            {
+                if (mod.ModID == "Downpour")
+                {
+                    FieldInfo r = mod.GetType().Assembly.GetType("RainFall").GetField("rainIntensity");
+                    if (r != null)
+                    {
+                        this.rainIntensity = (float)r.GetValue(null);
+                    }
+                }
+            }
+            if (RayTraceSky(new Vector2(0f, 5f)))
             {
                 this.washable = true;
             }
-            if (RayTraceSky(new Vector2(30f, 1f)))
+            if (RayTraceSky(new Vector2(-1f, 5f)))
             {
                 this.washable = true;
             }
-            if (RayTraceSky(new Vector2(-30f, 1f)))
+            if (RayTraceSky(new Vector2(1f, 5f)))
             {
                 this.washable = true;
             }
@@ -103,17 +126,15 @@ public class BloodSplatter : UpdatableAndDeletable, IDrawable
         }
         return Mathf.Clamp(Mathf.RoundToInt(num / 150f), 1, 20);
     }
-
     public bool RayTraceSky(Vector2 testDir)
     {
-        Vector2 corner = Custom.RectCollision(this.pos + new Vector2(0f, 30f), this.pos + testDir * 100000f, this.room.RoomRect).GetCorner(FloatRect.CornerLabel.D);
-        if (SharedPhysics.RayTraceTilesForTerrainReturnFirstSolid(this.room, this.pos + new Vector2(0f, 30f), corner) != null)
+        Vector2 corner = Custom.RectCollision(this.quad[0], this.quad[0] + testDir * 100000f, this.room.RoomRect).GetCorner(FloatRect.CornerLabel.D);
+        if (SharedPhysics.RayTraceTilesForTerrainReturnFirstSolid(this.room, this.quad[0] + testDir, corner) != null)
         {
             return false;
         }
         if (corner.y >= this.room.PixelHeight - 5f)
         {
-            this.skyPosition = new IntVector2?(this.room.GetTilePosition(this.pos));
             return true;
         }
         return false;
@@ -135,7 +156,7 @@ public class BloodSplatter : UpdatableAndDeletable, IDrawable
         sLeaser.sprites[0].RemoveFromContainer();
         this.InitiateSprites(sLeaser, rCam);
         float[,] vertices = this.vertices;
-        alphaFade = UnityEngine.Random.Range(0.3f, 1f) - rCam.currentPalette.darkness;
+        alphaFade = Mathf.Lerp(1f,0.1f, rCam.currentPalette.darkness * 0.9f);
         for (int i = 0; i <= this.gridDiv; i++)
         {
             for (int j = 0; j <= this.gridDiv; j++)
@@ -160,15 +181,19 @@ public class BloodSplatter : UpdatableAndDeletable, IDrawable
     {
         if (this.washable)
         {
-            this.meshDirty = false;
-            for (int i = 0; i <= this.gridDiv; i++)
+            if (this.rainIntensity > 0)
             {
-                for (int j = 0; j <= this.gridDiv; j++)
+                float washRate = Mathf.Lerp(0, 0.0065f, this.rainIntensity);
+                this.meshDirty = false;
+                for (int i = 0; i <= this.gridDiv; i++)
                 {
-                    (sLeaser.sprites[0] as TriangleMesh).verticeColors[j * (this.gridDiv + 1) + i].a = (sLeaser.sprites[0] as TriangleMesh).verticeColors[j * (this.gridDiv + 1) + i].a - 0.07f * timeStacker;
-                    if((sLeaser.sprites[0] as TriangleMesh).verticeColors[j * (this.gridDiv + 1) + i].a <= 0f)
+                    for (int j = 0; j <= this.gridDiv; j++)
                     {
-                        base.slatedForDeletetion = true;
+                        (sLeaser.sprites[0] as TriangleMesh).verticeColors[j * (this.gridDiv + 1) + i].a = (sLeaser.sprites[0] as TriangleMesh).verticeColors[j * (this.gridDiv + 1) + i].a - washRate * timeStacker;
+                        if ((sLeaser.sprites[0] as TriangleMesh).verticeColors[j * (this.gridDiv + 1) + i].a <= 0f)
+                        {
+                            base.slatedForDeletetion = true;
+                        }
                     }
                 }
             }
@@ -183,6 +208,10 @@ public class BloodSplatter : UpdatableAndDeletable, IDrawable
             sLeaser.sprites[0].element = Futile.atlasManager.GetElementWithName("PH");
             this.elementDirty = false;
         }
+        //0 - Bottom Left
+        //1 - Top Left
+        //2 - Top Right
+        //3 - Bottom Right
         for (int i = 0; i < this.verts.Length; i++)
         {
             (sLeaser.sprites[0] as TriangleMesh).MoveVertice(i, this.verts[i] - camPos);

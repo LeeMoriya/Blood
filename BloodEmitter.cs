@@ -33,7 +33,7 @@ public class BloodEmitter : UpdatableAndDeletable
         this.maxVelocity = velocity + (BloodMod.goreMultiplier * 3);
         //Default blood color
         this.creatureColor = new Color(0.5f, 0f, 0f);
-        this.splatterColor = "red";
+        this.splatterColor = "Slugcat";
         //Individual blood colors
         if (this.chunk.owner is Creature)
         {
@@ -41,7 +41,7 @@ public class BloodEmitter : UpdatableAndDeletable
             if (BloodMod.creatureColors.ContainsKey((this.chunk.owner as Creature).Template.type.ToString()))
             {
                 this.creatureColor = BloodMod.creatureColors[(this.chunk.owner as Creature).Template.type.ToString()];
-                this.splatterColor = (this.chunk.owner as Creature).Template.type.ToString() + "Tex";
+                this.splatterColor = (this.chunk.owner as Creature).Template.type.ToString();
             }
         }
     }
@@ -61,11 +61,11 @@ public class BloodEmitter : UpdatableAndDeletable
         if ((this.chunk.owner as Creature).dead)
         {
             //Speed up bleed time if the creature is dead
-            this.bleedTime = this.bleedTime - 0.8f * Time.deltaTime;
+            this.bleedTime -= 0.8f * Time.deltaTime;
         }
         else
         {
-            this.bleedTime = this.bleedTime - 0.5f * Time.deltaTime;
+            this.bleedTime -= 0.5f * Time.deltaTime;
         }
         if (this.bleedTime <= 0f)
         {
@@ -156,6 +156,7 @@ public class BloodParticle : CosmeticSprite
             }
             if (this.room.GetTile(this.pos).Terrain == Room.Tile.TerrainType.Solid)
             {
+                Vector2 velocity = this.vel;
                 //Hits floor
                 if (this.room.GetTile(this.pos + new Vector2(0f, 20f)).Terrain == Room.Tile.TerrainType.Air)
                 {
@@ -187,14 +188,14 @@ public class BloodParticle : CosmeticSprite
                     {
                         if (UnityEngine.Random.value > 0.5f - (BloodMod.goreMultiplier * 0.3f))
                         {
-                            this.room.AddObject(new BloodSplatter(this.pos, this.splatterColor, UnityEngine.Random.Range(10f, 50f + BloodMod.goreMultiplier * 25)));
+                            this.room.AddObject(new BloodSplatter(this.pos, this.splatterColor + "Tex", UnityEngine.Random.Range(10f, 50f + BloodMod.goreMultiplier * 25)));
                         }
                     }
                     else
                     {
                         for (int i = 0; i < 3; i++)
                         {
-                            this.room.AddObject(new BloodSplatter(this.pos, this.splatterColor, UnityEngine.Random.Range(20f, 30f)));
+                            this.room.AddObject(new BloodSplatter(this.pos, this.splatterColor + "Tex", UnityEngine.Random.Range(20f, 30f)));
                         }
                     }
                     base.slatedForDeletetion = true;
@@ -275,6 +276,8 @@ public class BloodParticle : CosmeticSprite
     public override void ApplyPalette(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam, RoomPalette palette)
     {
         base.ApplyPalette(sLeaser, rCam, palette);
+        sLeaser.sprites[0].color = Color.Lerp(this.color, this.room.game.cameras[0].currentPalette.blackColor, palette.darkness * 0.8f);
+        sLeaser.sprites[1].color = Color.Lerp(this.color, this.room.game.cameras[0].currentPalette.blackColor, palette.darkness * 0.8f);
     }
     public override void AddToContainer(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam, FContainer newContatiner)
     {

@@ -33,7 +33,7 @@ public class BloodHooks
         }
         if (result.obj is Creature)
         {
-            self.room.AddObject(new BloodParticle(self.bodyChunks[0].pos, new Vector2(UnityEngine.Random.Range(-3f, 3f), UnityEngine.Random.Range(5f, 10f)), BloodMod.creatureColors[(result.obj as Creature).Template.type.ToString()], (result.obj as Creature).Template.type.ToString() + "Tex", null, 2f));
+            self.room.AddObject(new BloodParticle(self.bodyChunks[0].pos, new Vector2(UnityEngine.Random.Range(-3f, 3f), UnityEngine.Random.Range(5f, 10f)), BloodMod.creatureColors[(result.obj as Creature).Template.type.ToString()], (result.obj as Creature).Template.type.ToString(), null, 2f));
         }
         orig.Invoke(self, result, eu);
         return true;
@@ -45,7 +45,7 @@ public class BloodHooks
         {
             if((self.eatMeat > 45 && self.eatMeat < 50) || (self.eatMeat > 55 && self.eatMeat < 60) || (self.eatMeat > 65 && self.eatMeat < 75))
             {
-                self.room.AddObject(new BloodParticle(self.bodyChunks[0].pos, new Vector2(UnityEngine.Random.Range(-3f, 3f), UnityEngine.Random.Range(5f, 10f)), BloodMod.creatureColors[(self.grasps[0].grabbedChunk.owner as Creature).Template.type.ToString()], (self.grasps[0].grabbedChunk.owner as Creature).Template.type.ToString() + "Tex", null, 2.3f));
+                self.room.AddObject(new BloodParticle(self.bodyChunks[0].pos, new Vector2(UnityEngine.Random.Range(-3f, 3f), UnityEngine.Random.Range(5f, 10f)), BloodMod.creatureColors[(self.grasps[0].grabbedChunk.owner as Creature).Template.type.ToString()], (self.grasps[0].grabbedChunk.owner as Creature).Template.type.ToString(), null, 2.3f));
             }
         }
         orig.Invoke(self);
@@ -57,7 +57,7 @@ public class BloodHooks
         orig.Invoke(self, grasp, eu);
         for (int i = 0; i < 2; i++)
         {
-            self.room.AddObject(new BloodParticle(self.bodyChunks[0].pos, new Vector2(UnityEngine.Random.Range(-3f, 3f), UnityEngine.Random.Range(1f, 5f)), BloodMod.creatureColors["Hazer"], "HazerTex", null, 1.3f));
+            self.room.AddObject(new BloodParticle(self.bodyChunks[0].pos, new Vector2(UnityEngine.Random.Range(-3f, 3f), UnityEngine.Random.Range(1f, 5f)), BloodMod.creatureColors["Hazer"], "Hazer", null, 1.3f));
         }
     }
 
@@ -66,7 +66,7 @@ public class BloodHooks
         orig.Invoke(self, grasp, eu);
         for (int i = 0; i < 2; i++)
         {
-            self.room.AddObject(new BloodParticle(self.bodyChunks[0].pos, new Vector2(UnityEngine.Random.Range(-3f, 3f), UnityEngine.Random.Range(1f, 5f)), BloodMod.creatureColors["VultureGrub"], "VultureGrubTex", null, 1.3f));
+            self.room.AddObject(new BloodParticle(self.bodyChunks[0].pos, new Vector2(UnityEngine.Random.Range(-3f, 3f), UnityEngine.Random.Range(1f, 5f)), BloodMod.creatureColors["VultureGrub"], "VultureGrub", null, 1.3f));
         }
     }
 
@@ -75,7 +75,7 @@ public class BloodHooks
         orig.Invoke(self, grasp, eu);
         for (int i = 0; i < 2; i++)
         {
-            self.room.AddObject(new BloodParticle(self.bodyChunks[0].pos, new Vector2(UnityEngine.Random.Range(-3f, 3f), UnityEngine.Random.Range(1f, 5f)), BloodMod.creatureColors["SmallCentipede"], "SmallCentipedeTex", null, 1.3f));
+            self.room.AddObject(new BloodParticle(self.bodyChunks[0].pos, new Vector2(UnityEngine.Random.Range(-3f, 3f), UnityEngine.Random.Range(1f, 5f)), BloodMod.creatureColors["SmallCentipede"], "SmallCentipede", null, 1.3f));
         }
     }
 
@@ -84,7 +84,7 @@ public class BloodHooks
         orig.Invoke(self, grasp, eu);
         for (int i = 0; i < 2; i++)
         {
-            self.room.AddObject(new BloodParticle(self.bodyChunks[0].pos, new Vector2(UnityEngine.Random.Range(-3f, 3f), UnityEngine.Random.Range(1f, 5f)), BloodMod.creatureColors["SmallNeedleWorm"], "SmallNeedleWormTex", null, 1.3f));
+            self.room.AddObject(new BloodParticle(self.bodyChunks[0].pos, new Vector2(UnityEngine.Random.Range(-3f, 3f), UnityEngine.Random.Range(1f, 5f)), BloodMod.creatureColors["SmallNeedleWorm"], "SmallNeedleWorm", null, 1.3f));
         }
     }
 
@@ -93,7 +93,7 @@ public class BloodHooks
         orig.Invoke(self, grasp, eu);
         for (int i = 0; i < 2; i++)
         {
-            self.room.AddObject(new BloodParticle(self.bodyChunks[0].pos, new Vector2(UnityEngine.Random.Range(-3f, 3f), UnityEngine.Random.Range(1f, 5f)), BloodMod.creatureColors["JellyFish"], "JellyFishTex", null, 1.3f));
+            self.room.AddObject(new BloodParticle(self.bodyChunks[0].pos, new Vector2(UnityEngine.Random.Range(-3f, 3f), UnityEngine.Random.Range(1f, 5f)), BloodMod.creatureColors["JellyFish"], "JellyFish", null, 1.3f));
         }
     }
 
@@ -102,7 +102,7 @@ public class BloodHooks
         orig.Invoke(self, grasp, eu);
         for (int i = 0; i < 2; i++)
         {
-            self.room.AddObject(new BloodParticle(self.bodyChunks[0].pos, new Vector2(UnityEngine.Random.Range(-3f, 3f), UnityEngine.Random.Range(1f, 5f)), BloodMod.creatureColors["EggBug"], "EggBugTex", null, 1.3f));
+            self.room.AddObject(new BloodParticle(self.bodyChunks[0].pos, new Vector2(UnityEngine.Random.Range(-3f, 3f), UnityEngine.Random.Range(1f, 5f)), BloodMod.creatureColors["EggBug"], "EggBug", null, 1.3f));
         }
     }
     private static void Fly_BitByPlayer(On.Fly.orig_BitByPlayer orig, Fly self, Creature.Grasp grasp, bool eu)
@@ -110,7 +110,7 @@ public class BloodHooks
         orig.Invoke(self, grasp, eu);
         for (int i = 0; i < 2; i++)
         {
-            self.room.AddObject(new BloodParticle(self.mainBodyChunk.pos, new Vector2(UnityEngine.Random.Range(-3f, 3f), UnityEngine.Random.Range(1f, 5f)), BloodMod.creatureColors["Fly"], "FlyTex", null, 1.3f));
+            self.room.AddObject(new BloodParticle(self.mainBodyChunk.pos, new Vector2(UnityEngine.Random.Range(-3f, 3f), UnityEngine.Random.Range(1f, 5f)), BloodMod.creatureColors["Fly"], "Fly", null, 1.3f));
         }
     }
 

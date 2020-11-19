@@ -6,6 +6,8 @@ using OptionalUI;
 using UnityEngine;
 using RWCustom;
 using System.IO;
+using Partiality.Modloader;
+using Partiality;
 
 public class BloodConfig : OptionInterface
 {
@@ -44,6 +46,8 @@ public class BloodConfig : OptionInterface
     public OpCheckBox bloodlust;
     public OpLabel bloodlustLabel;
     public OpCheckBox preset;
+    public OpCheckBox compat;
+    public OpLabel compatLabel;
 
     public BloodConfig() : base(BloodMod.mod)
     {
@@ -78,7 +82,7 @@ public class BloodConfig : OptionInterface
         this.resetButton.description = "Reset this creature's blood color to the mod's default.";
         this.modName = new OpLabel(new Vector2(400f, 552f), new Vector2(0f, 0f), "BLOOD MOD", FLabelAlignment.Center, true);
         this.modCredit = new OpLabel(new Vector2(400f, 532f), new Vector2(0f, 0f), "Created by LeeMoriya", FLabelAlignment.Center, false);
-        this.modVersion = new OpLabel(new Vector2(400f, 518f), new Vector2(0f, 0f), "Version: 1.00", FLabelAlignment.Center, false);
+        this.modVersion = new OpLabel(new Vector2(400f, 518f), new Vector2(0f, 0f), "Version: 1.01", FLabelAlignment.Center, false);
         this.rect = new OpRect(new Vector2(230f, 130f), new Vector2(370f, 360f), 0f);
         this.guide = new OpLabel(new Vector2(405f, 462f), new Vector2(0f, 0f), "Select creatures on the left and adjust their blood color using", FLabelAlignment.Center, false);
         this.guide2 = new OpLabel(new Vector2(405f, 442f), new Vector2(0f, 0f), "the color picker below. Finalize changes by clicking 'Apply'", FLabelAlignment.Center, false);
@@ -93,10 +97,20 @@ public class BloodConfig : OptionInterface
         this.vibrantPreset = new OpSimpleButton(new Vector2(435f, 85f), new Vector2(130f, 31f), "vibrant", "Vibrant Preset");
         this.realisticPreset.description = "Blood colors will be more realistic.";
         this.vibrantPreset.description = "Blood colors will more closely match the creature's color.";
-        this.bloodlust = new OpCheckBox(new Vector2(352f, 2f), "gore", false);
+        this.bloodlust = new OpCheckBox(new Vector2(265f, 45f), "gore", false);
         this.bloodlust.description = "Blood effects are increased dramatically";
-        this.bloodlustLabel = new OpLabel(new Vector2(385f, 5f), new Vector2(), "Bloodlust Mode", FLabelAlignment.Left, false);
+        this.bloodlustLabel = new OpLabel(new Vector2(295f, 48f), new Vector2(), "Bloodlust Mode", FLabelAlignment.Left, false);
+        this.compat = new OpCheckBox(new Vector2(265f, 12f), "wash", false);
+        this.compat.description = "Rainfall from the mod Downpour will wash away blood.";
+        this.compatLabel = new OpLabel(new Vector2(295f, 15f), new Vector2(), "Downpour Compatibility", FLabelAlignment.Left, false);
         this.preset = new OpCheckBox(new Vector2(), "preset", false);
+        foreach (PartialityMod mod in PartialityManager.Instance.modManager.loadedMods)
+        {
+            if (mod.ModID == "Downpour")
+            {
+                this.Tabs[0].AddItems(this.compat, this.compatLabel);
+            }
+        }
         this.Tabs[0].AddItems(this.selectedSprite, this.colorPicker, this.creatureLabel, this.previewOld, this.previewNew, this.oldLabel, this.newLabel, this.resetButton, this.bloodPreviewLabel, this.modName, this.modCredit, this.rect, this.guide, this.guide2, this.modVersion, this.bloodPreview, this.realisticPreset, this.vibrantPreset, this.bloodlust, this.bloodlustLabel, this.preset);
         //Create individual buttons/sprites/color pickers for each creature
         foreach (KeyValuePair<string, Color> creature in this.configColors)
@@ -390,6 +404,14 @@ public class BloodConfig : OptionInterface
         else
         {
             BloodMod.goreMultiplier = 0f;
+        }
+        if (config.ContainsKey("wash") && config["wash"] == "true")
+        {
+            BloodMod.compat = true;
+        }
+        else
+        {
+            BloodMod.compat = false;
         }
         if (config["preset"] == "true")
         {
