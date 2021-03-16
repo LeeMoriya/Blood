@@ -49,7 +49,7 @@ public class BloodConfig : OptionInterface
     public OpCheckBox compat;
     public OpLabel compatLabel;
 
-    public BloodConfig() : base(BloodMod.mod)
+    public BloodConfig() : base(mod: BloodMod.mod)
     {
     }
 

@@ -23,6 +23,13 @@ public class BloodHooks
         On.Hazer.BitByPlayer += Hazer_BitByPlayer;
         On.Player.EatMeatUpdate += Player_EatMeatUpdate;
         On.Rock.HitSomething += Rock_HitSomething;
+        On.RainWorldGame.ctor += RainWorldGame_ctor;
+    }
+
+    private static void RainWorldGame_ctor(On.RainWorldGame.orig_ctor orig, RainWorldGame self, ProcessManager manager)
+    {
+        BloodMod.chunkTracker = new List<BodyChunk>();
+        orig.Invoke(self, manager);
     }
 
     private static bool Rock_HitSomething(On.Rock.orig_HitSomething orig, Rock self, SharedPhysics.CollisionResult result, bool eu)
@@ -161,9 +168,9 @@ public class BloodHooks
     {
         //Add creature to a list once grabbed to prevent multiple emitters being spawned
         orig.Invoke(self);
-        if (self != null & self.grasps[0].grabbedChunk != null && self.grasps[0].grabbedChunk.owner is Creature)
+        if (self != null & self.grasps[0] != null && self.grasps[0].grabbedChunk != null && self.grasps[0].grabbedChunk.owner is Creature)
         {
-            if (!BloodMod.chunkTracker.Contains(self.grasps[0].grabbedChunk))
+            if (BloodMod.chunkTracker != null && !BloodMod.chunkTracker.Contains(self.grasps[0].grabbedChunk))
             {
                 self.room.AddObject(new BloodEmitter(null, self.grasps[0].grabbedChunk, 4f, 0.8f));
                 BloodMod.chunkTracker.Add(self.grasps[0].grabbedChunk);
