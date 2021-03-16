@@ -1,4 +1,4 @@
-# Rain World Blood Mod
+# Rain World Blood Mod ![GitHub all releases](https://img.shields.io/github/downloads/LeeMoriya/Blood/total?style=for-the-badge)
 
 This mod adds new blood effects to the game, making combat and creature interactions more visceral.
 
@@ -26,7 +26,9 @@ This mod adds new blood effects to the game, making combat and creature interact
 
 ## Installation
 #### The latest version of ConfigMachine is required
-[Grab the latest release of the mod from the Releases page](https://github.com/LeeMoriya/Blood/releases/tag/v1.05) by clicking the Blood.dll file. Drop it into your 'Mods' folder and enable it in the Partiality Launcher
+[Grab the latest release of the mod from the Releases page](https://github.com/LeeMoriya/Blood/releases/tag/v1.1) by clicking the Blood.dll file. Drop it into your 'Mods' folder and enable it in the BOI Mod Manager for BepInEx.
+
+This mod supports [AutoUpdate](https://beestuff.pythonanywhere.com/audb/api/mods/0/0/download/latest)
 
 ![GitHub Logo](https://imgur.com/zXrdnHV.png)
 
