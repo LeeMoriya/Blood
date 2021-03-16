@@ -28,6 +28,8 @@ This mod adds new blood effects to the game, making combat and creature interact
 #### The latest version of ConfigMachine is required
 [Grab the latest release of the mod from the Releases page](https://github.com/LeeMoriya/Blood/releases/tag/v1.05) by clicking the Blood.dll file. Drop it into your 'Mods' folder and enable it in the BOI Mod Manager for BepInEx.
 
+This mod supports [AutoUpdate](https://beestuff.pythonanywhere.com/audb/api/mods/0/0/download/latest)
+
 ![GitHub Logo](https://imgur.com/zXrdnHV.png)
 
 ## Bug Reports:
