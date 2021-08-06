@@ -54,6 +54,15 @@ public class BloodMod : PartialityMod
     public static Dictionary<string, Color> defaultColors;
     public static Dictionary<string, Color> vibrantColors;
     public static Dictionary<string, Texture2D> bloodTextures;
+    public static List<string> creatureBlacklist = new List<string>
+    {
+        "StandardGroundCreature",
+        "LizardTemplate",
+        "Overseer",
+        "Leech",
+        "SeaLeech",
+        "JungleLeech"
+    };
     public static List<BodyChunk> chunkTracker = new List<BodyChunk>();
     public static Color redBlood = new Color(0.5f, 0f, 0f);
     public static Color greenBlood = new Color(0.5f, 0.43f, 0.07f);
@@ -77,6 +86,10 @@ public class BloodMod : PartialityMod
         base.OnEnable();
         mod = this;
         BloodHooks.Hook();
+    }
+    //Initialise ConfigMachine
+    public static OptionInterface LoadOI()
+    {
         BloodMod.bloodTex = new Texture2D(32, 16, TextureFormat.ARGB32, false);
         BloodMod.bloodTex.anisoLevel = 0;
         BloodMod.bloodTex.filterMode = FilterMode.Point;
@@ -98,8 +111,6 @@ public class BloodMod : PartialityMod
             {"Salamander",      new Color(0.6f,0.09f,0.09f)},
             {"CyanLizard",      new Color(0.5f,0f,0.05f)},
             {"Fly",             new Color(0.5f, 0.43f, 0.07f)},
-            {"Leech",           new Color(0.55f,0f,0f)},
-            {"SeaLeech",        new Color(0.55f,0f,0f)},
             {"Snail",           new Color(0.52f, 0.50f, 0.07f)},
             {"Vulture",         new Color(0.5f,0f,0f)},
             {"GarbageWorm",     new Color(0.5f, 0.43f, 0.07f)},
@@ -122,7 +133,6 @@ public class BloodMod : PartialityMod
             {"Centiwing",       new Color(0.5f, 0.43f, 0.07f)},
             {"SmallCentipede",  new Color(0.5f, 0.43f, 0.07f)},
             {"Scavenger",       new Color(0.5f,0f,0f)},
-            {"Overseer",        new Color(1f,0.85f,0f)},
             {"VultureGrub",     new Color(0.5f, 0.43f, 0.07f)},
             {"EggBug",          new Color(0.43f, 0.58f, 0.33f)},
             {"BigSpider",       new Color(0.5f, 0.13f, 0.07f)},
@@ -147,8 +157,6 @@ public class BloodMod : PartialityMod
             {"Salamander",      new Color(1f,0.5f,0.5f)},
             {"CyanLizard",      new Color(0f,0.86f,0.93f)},
             {"Fly",             new Color(0.5f, 0.43f, 0.07f)},
-            {"Leech",           new Color(0.6f,0f,0f)},
-            {"SeaLeech",        new Color(0.6f,0f,0f)},
             {"Snail",           new Color(0.52f, 0.50f, 0.07f)},
             {"Vulture",         new Color(0.55f,0f,0.1f)},
             {"GarbageWorm",     new Color(0.5f, 0.43f, 0.07f)},
@@ -171,7 +179,6 @@ public class BloodMod : PartialityMod
             {"Centiwing",       new Color(0.27f, 0.6f, 0f)},
             {"SmallCentipede",  new Color(0.5f, 0.43f, 0f)},
             {"Scavenger",       new Color(0.5f,0f,0f)},
-            {"Overseer",        new Color(1f,0.85f,0f)},
             {"VultureGrub",     new Color(0.5f, 0.53f, 0.07f)},
             {"EggBug",          new Color(0.33f, 0.85f, 0.33f)},
             {"BigSpider",       new Color(0.5f, 0.13f, 0.07f)},
@@ -183,17 +190,26 @@ public class BloodMod : PartialityMod
             {"Hazer",           new Color(0.211764708f, 0.7921569f, 0.3882353f)},
         };
         //Create a copy of the default colors Dictionary which can be modified by the config screen
-        creatureColors = new Dictionary<string, Color>(defaultColors);
         //Create a new blank texture for each creature in the game with the same width and height of the splatter texture
         bloodTextures = new Dictionary<string, Texture2D>();
         foreach (string name in Enum.GetNames(typeof(CreatureTemplate.Type)))
         {
-            bloodTextures.Add(name, new Texture2D(w, h));
+            Debug.Log(name);
+            if (!creatureBlacklist.Contains(name))
+            {
+                if (!BloodMod.defaultColors.ContainsKey(name))
+                {
+                    BloodMod.defaultColors.Add(name, new Color(0.5f, 0f, 0f));
+                }
+                if (!BloodMod.vibrantColors.ContainsKey(name))
+                {
+                    BloodMod.vibrantColors.Add(name, new Color(0.5f, 0f, 0f));
+                }
+                bloodTextures.Add(name, new Texture2D(w, h));
+            }
         }
-    }
-    //Initialise ConfigMachine
-    public static OptionInterface LoadOI()
-    {
+        creatureColors = new Dictionary<string, Color>(defaultColors);
+        Debug.Log("Load BloodConfig");
         return new BloodConfig();
     }
 }

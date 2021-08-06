@@ -48,6 +48,8 @@ public class BloodConfig : OptionInterface
     public OpCheckBox preset;
     public OpCheckBox compat;
     public OpLabel compatLabel;
+    public OpScrollBox critList;
+    public bool moddedCrits = false;
 
     public BloodConfig() : base(mod: BloodMod.mod)
     {
@@ -63,11 +65,10 @@ public class BloodConfig : OptionInterface
         //Create a copy of the creature color dictionary that will be modified by the config screen
         this.configColors = new Dictionary<string, Color>(BloodMod.creatureColors);
         this.Tabs = new OpTab[1];
-        int num = 0;
-        int num2 = 0;
-        int num3 = 0;
-        int num4 = 0;
+        IntVector2 offsets = new IntVector2();
         this.Tabs[0] = new OpTab("Options");
+        this.moddedCrits = false;
+        this.critList = new OpScrollBox(new Vector2(-5f, 50f), new Vector2(230f, 550f), 1600f, false, true, true);
         this.creatureLabel = new OpLabel(new Vector2(490f, 375f), new Vector2(0f, 0f), "None Selected", FLabelAlignment.Center, true);
         this.colorPicker = new OpColorPicker(new Vector2(250f, 250f), "bloodColor");
         this.previewOld = new OpImage(new Vector2(250f, 150f), "Futile_White");
@@ -82,7 +83,7 @@ public class BloodConfig : OptionInterface
         this.resetButton.description = "Reset this creature's blood color to the mod's default.";
         this.modName = new OpLabel(new Vector2(400f, 552f), new Vector2(0f, 0f), "BLOOD MOD", FLabelAlignment.Center, true);
         this.modCredit = new OpLabel(new Vector2(400f, 532f), new Vector2(0f, 0f), "Created by LeeMoriya", FLabelAlignment.Center, false);
-        this.modVersion = new OpLabel(new Vector2(400f, 518f), new Vector2(0f, 0f), "Version: 1.01", FLabelAlignment.Center, false);
+        this.modVersion = new OpLabel(new Vector2(400f, 518f), new Vector2(0f, 0f), "Version: 1.1", FLabelAlignment.Center, false);
         this.rect = new OpRect(new Vector2(230f, 130f), new Vector2(370f, 360f), 0f);
         this.guide = new OpLabel(new Vector2(405f, 462f), new Vector2(0f, 0f), "Select creatures on the left and adjust their blood color using", FLabelAlignment.Center, false);
         this.guide2 = new OpLabel(new Vector2(405f, 442f), new Vector2(0f, 0f), "the color picker below. Finalize changes by clicking 'Apply'", FLabelAlignment.Center, false);
@@ -101,7 +102,7 @@ public class BloodConfig : OptionInterface
         this.bloodlust.description = "Blood effects are increased dramatically";
         this.bloodlustLabel = new OpLabel(new Vector2(295f, 48f), new Vector2(), "Bloodlust Mode", FLabelAlignment.Left, false);
         this.compat = new OpCheckBox(new Vector2(265f, 12f), "wash", false);
-        this.compat.description = "Rainfall from the mod Downpour will wash away blood.";
+        this.compat.description = "Rain from the mod Downpour will wash away blood.";
         this.compatLabel = new OpLabel(new Vector2(295f, 15f), new Vector2(), "Downpour Compatibility", FLabelAlignment.Left, false);
         this.preset = new OpCheckBox(new Vector2(), "preset", false);
         foreach (PartialityMod mod in PartialityManager.Instance.modManager.loadedMods)
@@ -111,63 +112,28 @@ public class BloodConfig : OptionInterface
                 this.Tabs[0].AddItems(this.compat, this.compatLabel);
             }
         }
-        this.Tabs[0].AddItems(this.selectedSprite, this.colorPicker, this.creatureLabel, this.previewOld, this.previewNew, this.oldLabel, this.newLabel, this.resetButton, this.bloodPreviewLabel, this.modName, this.modCredit, this.rect, this.guide, this.guide2, this.modVersion, this.bloodPreview, this.realisticPreset, this.vibrantPreset, this.bloodlust, this.bloodlustLabel, this.preset);
+        this.Tabs[0].AddItems(this.critList, this.selectedSprite, this.colorPicker, this.creatureLabel, this.previewOld, this.previewNew, this.oldLabel, this.newLabel, this.resetButton, this.bloodPreviewLabel, this.modName, this.modCredit, this.rect, this.guide, this.guide2, this.modVersion, this.bloodPreview, this.realisticPreset, this.vibrantPreset, this.bloodlust, this.bloodlustLabel, this.preset);
         //Create individual buttons/sprites/color pickers for each creature
         foreach (KeyValuePair<string, Color> creature in this.configColors)
         {
-            if (creature.Key != "Overseer")
+            OpColorPicker picker = new OpColorPicker(new Vector2(250f, 270f), creature.Key, OpColorPicker.ColorToHex(BloodMod.defaultColors[creature.Key]));
+            OpSimpleButton button = new OpSimpleButton(new Vector2(10f, 1548f) + (buttonOffset * offsets.y) + buttonOffset2 * offsets.x, new Vector2(40f, 40f), creature.Key + "but", "");
+            OpImage sprite = new OpImage(new Vector2(10f, 1548f) + (buttonOffset * offsets.y) + buttonOffset2 * offsets.x + spriteOffset, BloodColor.ReturnCreatureSprite(creature.Key));
+            sprite.color = BloodColor.ReturnSpriteColor(creature.Key);
+            sprite.sprite.SetAnchor(new Vector2(0.5f, 0.5f));
+            sprite.description = creature.Key;
+            button.description = creature.Key;
+            this.critList.AddItems(button, sprite);
+            this.Tabs[0].AddItems(picker);
+            offsets.x++;
+            if (offsets.x == 4)
             {
-                if (num < 11)
-                {
-                    OpColorPicker picker = new OpColorPicker(new Vector2(250f, 270f), creature.Key, OpColorPicker.ColorToHex(BloodMod.defaultColors[creature.Key]));
-                    OpSimpleButton button = new OpSimpleButton(new Vector2(21f, 548f) + (buttonOffset * num), new Vector2(40f, 40f), creature.Key + "but", "");
-                    OpImage sprite = new OpImage(new Vector2(21f, 548f) + (buttonOffset * num) + spriteOffset, BloodColor.GetCreatureSprite(creature.Key));
-                    sprite.color = BloodColor.GetCreatureSpriteColor(creature.Key);
-                    sprite.sprite.SetAnchor(new Vector2(0.5f, 0.5f));
-                    sprite.description = creature.Key;
-                    button.description = creature.Key;
-                    this.Tabs[0].AddItems(button, sprite, picker);
-                    num++;
-                }
-                else if (num2 < 11)
-                {
-                    OpColorPicker picker = new OpColorPicker(new Vector2(250f, 270f), creature.Key, OpColorPicker.ColorToHex(BloodMod.defaultColors[creature.Key]));
-                    OpSimpleButton button = new OpSimpleButton(new Vector2(21f, 548f) + (buttonOffset * num2) + buttonOffset2, new Vector2(40f, 40f), creature.Key + "but", "");
-                    OpImage sprite = new OpImage(new Vector2(21f, 548f) + (buttonOffset * num2) + buttonOffset2 + spriteOffset, BloodColor.GetCreatureSprite(creature.Key));
-                    sprite.color = BloodColor.GetCreatureSpriteColor(creature.Key);
-                    sprite.sprite.SetAnchor(new Vector2(0.5f, 0.5f));
-                    sprite.description = creature.Key;
-                    button.description = creature.Key;
-                    this.Tabs[0].AddItems(button, sprite, picker);
-                    num2++;
-                }
-                else if (num3 < 11)
-                {
-                    OpColorPicker picker = new OpColorPicker(new Vector2(250f, 270f), creature.Key, OpColorPicker.ColorToHex(BloodMod.defaultColors[creature.Key]));
-                    OpSimpleButton button = new OpSimpleButton(new Vector2(21f, 548f) + (buttonOffset * num3) + (buttonOffset2 * 2), new Vector2(40f, 40f), creature.Key + "but", "");
-                    OpImage sprite = new OpImage(new Vector2(21f, 548f) + (buttonOffset * num3) + (buttonOffset2 * 2) + spriteOffset, BloodColor.GetCreatureSprite(creature.Key));
-                    sprite.color = BloodColor.GetCreatureSpriteColor(creature.Key);
-                    sprite.sprite.SetAnchor(new Vector2(0.5f, 0.5f));
-                    sprite.description = creature.Key;
-                    button.description = creature.Key;
-                    this.Tabs[0].AddItems(button, sprite, picker);
-                    num3++;
-                }
-                else
-                {
-                    OpColorPicker picker = new OpColorPicker(new Vector2(250f, 270f), creature.Key, OpColorPicker.ColorToHex(BloodMod.defaultColors[creature.Key]));
-                    OpSimpleButton button = new OpSimpleButton(new Vector2(21f, 548f) + (buttonOffset * num4) + (buttonOffset2 * 3), new Vector2(40f, 40f), creature.Key + "but", "");
-                    OpImage sprite = new OpImage(new Vector2(21f, 548f) + (buttonOffset * num4) + (buttonOffset2 * 3) + spriteOffset, BloodColor.GetCreatureSprite(creature.Key));
-                    sprite.color = BloodColor.GetCreatureSpriteColor(creature.Key);
-                    sprite.sprite.SetAnchor(new Vector2(0.5f, 0.5f));
-                    sprite.description = creature.Key;
-                    button.description = creature.Key;
-                    this.Tabs[0].AddItems(button, sprite, picker);
-                    num4++;
-                }
+                offsets.x = 0;
+                offsets.y++;
             }
             this.selected = "Slugcat";
         }
+        this.critList.SetContentSize(1600f - (52f * offsets.y), true);
     }
 
     public override void Signal(UItrigger trigger, string signal)
@@ -233,7 +199,7 @@ public class BloodConfig : OptionInterface
             this.preset.value = "true";
             this.configColors = new Dictionary<string, Color>(BloodMod.vibrantColors);
             this.previewOld.sprite.color = BloodMod.vibrantColors[this.selected];
-            foreach(KeyValuePair<string,Color> key in BloodMod.vibrantColors)
+            foreach (KeyValuePair<string, Color> key in BloodMod.vibrantColors)
             {
                 for (int i = 0; i < this.Tabs[0].items.Count; i++)
                 {
@@ -264,31 +230,31 @@ public class BloodConfig : OptionInterface
         {
             this.modName.color = Menu.Menu.MenuRGB(Menu.Menu.MenuColors.MediumGrey);
         }
-        for (int i = 0; i < this.Tabs[0].items.Count; i++)
+        for (int i = 0; i < this.critList.children.Count; i++)
         {
             //Adjust sprite colors based on mouse distance
-            if (this.Tabs[0].items[i] is OpImage)
+            if (this.critList.children[i] is OpImage)
             {
-                if (this.selected == (this.Tabs[0].items[i] as OpImage).description)
+                if (this.selected == (this.critList.children[i] as OpImage).description)
                 {
-                    (this.Tabs[0].items[i] as OpImage).sprite.color = rainbowColor;
+                    (this.critList.children[i] as OpImage).sprite.color = rainbowColor;
                 }
-                else if ((this.Tabs[0].items[i] as OpImage).description != "?")
+                else if ((this.critList.children[i] as OpImage).description != "?")
                 {
-                    if (Vector2.Distance((this.Tabs[0].items[i] as OpImage).pos + spriteOffset, Input.mousePosition) < 150f)
+                    if (Vector2.Distance((this.critList.children[i] as OpImage).pos + spriteOffset, Input.mousePosition) < 150f)
                     {
-                        if (this.bloodPreview.valueBool == true && (this.Tabs[0].items[i] as OpImage).description != "")
+                        if (this.bloodPreview.valueBool == true && (this.critList.children[i] as OpImage).description != "")
                         {
-                            (this.Tabs[0].items[i] as OpImage).sprite.color = Color.Lerp(this.configColors[(this.Tabs[0].items[i] as OpImage).description], (this.Tabs[0].items[i] as OpImage).color, Mathf.InverseLerp(-10f, 150f, Vector2.Distance((this.Tabs[0].items[i] as OpImage).pos + spriteOffset, Input.mousePosition)));
+                            (this.critList.children[i] as OpImage).sprite.color = Color.Lerp(this.configColors[(this.critList.children[i] as OpImage).description], (this.critList.children[i] as OpImage).color, Mathf.InverseLerp(-10f, 150f, Vector2.Distance((this.critList.children[i] as OpImage).pos + spriteOffset, Input.mousePosition)));
                         }
                         else
                         {
-                            (this.Tabs[0].items[i] as OpImage).sprite.color = Color.Lerp(lightRainbowColor, (this.Tabs[0].items[i] as OpImage).color, Mathf.InverseLerp(-120f, 150f, Vector2.Distance((this.Tabs[0].items[i] as OpImage).pos + spriteOffset, Input.mousePosition)));
+                            (this.critList.children[i] as OpImage).sprite.color = Color.Lerp(lightRainbowColor, (this.critList.children[i] as OpImage).color, Mathf.InverseLerp(-120f, 150f, Vector2.Distance((this.critList.children[i] as OpImage).pos + spriteOffset, Input.mousePosition)));
                         }
                     }
                     else
                     {
-                        (this.Tabs[0].items[i] as OpImage).sprite.color = (this.Tabs[0].items[i] as OpImage).color;
+                        (this.critList.children[i] as OpImage).sprite.color = (this.critList.children[i] as OpImage).color;
                     }
                 }
                 else
@@ -313,50 +279,53 @@ public class BloodConfig : OptionInterface
                 }
             }
             //Change button colors when selected
-            if (this.Tabs[0].items[i] is OpSimpleButton)
+            if (this.critList.children[i] is OpSimpleButton)
             {
-                if (this.bloodPreview.valueBool == true && (this.Tabs[0].items[i] as OpSimpleButton).description != this.resetButton.description && (this.Tabs[0].items[i] as OpSimpleButton).description != this.realisticPreset.description && (this.Tabs[0].items[i] as OpSimpleButton).description != this.vibrantPreset.description)
+                if (this.bloodPreview.valueBool == true && (this.critList.children[i] as OpSimpleButton).description != this.resetButton.description && (this.critList.children[i] as OpSimpleButton).description != this.realisticPreset.description && (this.critList.children[i] as OpSimpleButton).description != this.vibrantPreset.description)
                 {
-                    if ((this.Tabs[0].items[i] as OpSimpleButton).description == this.selected)
+                    if ((this.critList.children[i] as OpSimpleButton).description == this.selected)
                     {
-                        (this.Tabs[0].items[i] as OpSimpleButton).colorEdge = rainbowColor;
+                        (this.critList.children[i] as OpSimpleButton).colorEdge = rainbowColor;
                     }
-                    else if ((this.Tabs[0].items[i] as OpSimpleButton).signal != "real" && (this.Tabs[0].items[i] as OpSimpleButton).signal != "vibrant" && (this.Tabs[0].items[i] as OpSimpleButton).signal != "reset")
+                    else if ((this.critList.children[i] as OpSimpleButton).signal != "real" && (this.critList.children[i] as OpSimpleButton).signal != "vibrant" && (this.critList.children[i] as OpSimpleButton).signal != "reset")
                     {
-                        (this.Tabs[0].items[i] as OpSimpleButton).colorEdge = this.configColors[(this.Tabs[0].items[i] as OpSimpleButton).description];
-                        if (Vector2.Distance((this.Tabs[0].items[i] as OpSimpleButton).pos + spriteOffset, Input.mousePosition) < 150f)
+                        (this.critList.children[i] as OpSimpleButton).colorEdge = this.configColors[(this.critList.children[i] as OpSimpleButton).description];
+                        if (Vector2.Distance((this.critList.children[i] as OpSimpleButton).pos + spriteOffset, Input.mousePosition) < 150f)
                         {
-                            (this.Tabs[0].items[i] as OpSimpleButton).colorFill = Color.Lerp(this.configColors[(this.Tabs[0].items[i] as OpSimpleButton).description], new Color(0.0f, 0.0f, 0.0f), Mathf.InverseLerp(-50f, 150f, Vector2.Distance((this.Tabs[0].items[i] as OpSimpleButton).pos + spriteOffset, Input.mousePosition)));
+                            (this.critList.children[i] as OpSimpleButton).colorFill = Color.Lerp(this.configColors[(this.critList.children[i] as OpSimpleButton).description], new Color(0.0f, 0.0f, 0.0f), Mathf.InverseLerp(-50f, 150f, Vector2.Distance((this.critList.children[i] as OpSimpleButton).pos + spriteOffset, Input.mousePosition)));
                         }
                         else
                         {
-                            (this.Tabs[0].items[i] as OpSimpleButton).colorFill = new Color(0.0f, 0.0f, 0.0f);
+                            (this.critList.children[i] as OpSimpleButton).colorFill = new Color(0.0f, 0.0f, 0.0f);
                         }
                     }
                 }
                 else
                 {
-                    if ((this.Tabs[0].items[i] as OpSimpleButton).description == this.selected)
+                    if ((this.critList.children[i] as OpSimpleButton).description == this.selected)
                     {
-                        this.selectPos = (this.Tabs[0].items[i] as OpSimpleButton).pos;
-                        (this.Tabs[0].items[i] as OpSimpleButton).colorEdge = rainbowColor;
-                        (this.Tabs[0].items[i] as OpSimpleButton).colorFill = new Color(0f, 0f, 0f, 0f);
+                        this.selectPos = (this.critList.children[i] as OpSimpleButton).pos;
+                        (this.critList.children[i] as OpSimpleButton).colorEdge = rainbowColor;
+                        (this.critList.children[i] as OpSimpleButton).colorFill = new Color(0f, 0f, 0f, 0f);
                     }
-                    else if ((this.Tabs[0].items[i] as OpSimpleButton).signal != "real" && (this.Tabs[0].items[i] as OpSimpleButton).signal != "vibrant" && (this.Tabs[0].items[i] as OpSimpleButton).signal != "reset")
+                    else if ((this.critList.children[i] as OpSimpleButton).signal != "real" && (this.critList.children[i] as OpSimpleButton).signal != "vibrant" && (this.critList.children[i] as OpSimpleButton).signal != "reset")
                     {
-                        if (Vector2.Distance((this.Tabs[0].items[i] as OpSimpleButton).pos + spriteOffset, Input.mousePosition) < 150f)
+                        if (Vector2.Distance((this.critList.children[i] as OpSimpleButton).pos + spriteOffset, Input.mousePosition) < 150f)
                         {
-                            (this.Tabs[0].items[i] as OpSimpleButton).colorEdge = Color.Lerp(lightRainbowColor, new Color(0.3f, 0.3f, 0.3f), Mathf.InverseLerp(-50f, 150f, Vector2.Distance((this.Tabs[0].items[i] as OpSimpleButton).pos + spriteOffset, Input.mousePosition)));
-                            (this.Tabs[0].items[i] as OpSimpleButton).colorFill = Color.Lerp(lightRainbowColor, new Color(0f, 0f, 0f, 0f), Mathf.InverseLerp(-70f, 150f, Vector2.Distance((this.Tabs[0].items[i] as OpSimpleButton).pos + spriteOffset, Input.mousePosition)));
+                            (this.critList.children[i] as OpSimpleButton).colorEdge = Color.Lerp(lightRainbowColor, new Color(0.3f, 0.3f, 0.3f), Mathf.InverseLerp(-50f, 150f, Vector2.Distance((this.critList.children[i] as OpSimpleButton).pos + spriteOffset, Input.mousePosition)));
+                            (this.critList.children[i] as OpSimpleButton).colorFill = Color.Lerp(lightRainbowColor, new Color(0f, 0f, 0f, 0f), Mathf.InverseLerp(-70f, 150f, Vector2.Distance((this.critList.children[i] as OpSimpleButton).pos + spriteOffset, Input.mousePosition)));
                         }
                         else
                         {
-                            (this.Tabs[0].items[i] as OpSimpleButton).colorEdge = new Color(0.3f, 0.3f, 0.3f);
-                            (this.Tabs[0].items[i] as OpSimpleButton).colorFill = new Color(0f, 0f, 0f, 0f);
+                            (this.critList.children[i] as OpSimpleButton).colorEdge = new Color(0.3f, 0.3f, 0.3f);
+                            (this.critList.children[i] as OpSimpleButton).colorFill = new Color(0f, 0f, 0f, 0f);
                         }
                     }
                 }
             }
+        }
+        for (int i = 0; i < this.Tabs[0].items.Count; i++)
+        {
             //Hide and show per-creature color pickers and adjust preview sprite
             if (this.Tabs[0].items[i] is OpColorPicker)
             {
@@ -397,7 +366,7 @@ public class BloodConfig : OptionInterface
             this.configColors = temp;
             startup = true;
         }
-        if(config["gore"] == "true")
+        if (config["gore"] == "true")
         {
             BloodMod.goreMultiplier = 1f;
         }

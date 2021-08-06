@@ -15,35 +15,45 @@ class BloodColor
     {
         //Create a new instance of the dictionary
         Dictionary<string, Color> colorDictionary = creatureColors;
+        Debug.Log("Generating blood textures...");
         //Get colors from texture
         Color[] defaultColors = BloodMod.bloodTex.GetPixels();
         //Modify the colors to match each one in the dictionary
         foreach (KeyValuePair<string, Color> creatureColor in colorDictionary)
         {
-            Color[] newColors = defaultColors;
-            for (int i = 0; i < defaultColors.Length; i++)
+            //Debug.Log("Attempting to create blood texture for " + creatureColor.Key + "...");
+            try
             {
-                if (newColors[i].a > 0f)
+                Color[] newColors = defaultColors;
+                for (int i = 0; i < defaultColors.Length; i++)
                 {
-                    newColors[i] = Color.Lerp(defaultColors[i], creatureColor.Value, 10f);
-                    newColors[i].a = defaultColors[i].a;
+                    if (newColors[i].a > 0f)
+                    {
+                        newColors[i] = Color.Lerp(defaultColors[i], creatureColor.Value, 10f);
+                        newColors[i].a = defaultColors[i].a;
+                    }
+                }
+                //Create a new texture with modified color
+                BloodMod.bloodTextures[creatureColor.Key] = new Texture2D(BloodMod.w, BloodMod.h);
+                BloodMod.bloodTextures[creatureColor.Key].SetPixels(newColors);
+                BloodMod.bloodTextures[creatureColor.Key].Apply(true);
+                //Add the new texture to the AtlasManager, remove existing texture first if present
+                if (Futile.atlasManager.DoesContainElementWithName(creatureColor.Key + "Tex"))
+                {
+                    Futile.atlasManager.UnloadAtlas(creatureColor.Key + "Tex");
+                }
+                Futile.atlasManager.LoadAtlasFromTexture(creatureColor.Key + "Tex", BloodMod.bloodTextures[creatureColor.Key]);
+                if (Futile.atlasManager.DoesContainElementWithName(creatureColor.Key + "Tex"))
+                {
+                    //Debug.Log("Success!");
                 }
             }
-            //Create a new texture with modified color
-            BloodMod.bloodTextures[creatureColor.Key] = new Texture2D(BloodMod.w, BloodMod.h);
-            BloodMod.bloodTextures[creatureColor.Key].SetPixels(newColors);
-            BloodMod.bloodTextures[creatureColor.Key].Apply(true);
-            //Add the new texture to the AtlasManager, remove existing texture first if present
-            if (Futile.atlasManager.DoesContainElementWithName(creatureColor.Key + "Tex"))
+            catch
             {
-                Futile.atlasManager.UnloadAtlas(creatureColor.Key + "Tex");
-            }
-            Futile.atlasManager.LoadAtlasFromTexture(creatureColor.Key + "Tex", BloodMod.bloodTextures[creatureColor.Key]);
-            if (Futile.atlasManager.DoesContainElementWithName(creatureColor.Key + "Tex"))
-            {
-                Debug.Log("Blood: Creating new blood texture for " + creatureColor.Key);
+                Debug.Log("Failed! [" + creatureColor.Key + "]");
             }
         }
+        Debug.Log("Finished generating blood textures.");
     }
 
     public static void GenerateBloodTexture(string creature, Color creatureColor)
@@ -71,8 +81,26 @@ class BloodColor
         }
         Futile.atlasManager.LoadAtlasFromTexture(creature + "Tex", BloodMod.bloodTextures[creature]);
     }
+    //[NEW]
+    public static string ReturnCreatureSprite(string critName)
+    {
+        if(critName == "TempleGuard")
+        {
+            return "Sandbox_Randomize";
+        }
+        CreatureTemplate.Type type = (CreatureTemplate.Type)Enum.Parse(typeof(CreatureTemplate.Type), critName);
+        CreatureSymbol.IconSymbolData data = new IconSymbol.IconSymbolData(type, AbstractPhysicalObject.AbstractObjectType.Creature, 0);
+        return CreatureSymbol.SpriteNameOfCreature(data);
+    }
 
-    //Function for inputting the CreatureName and returning it's associated icon sprite
+    public static Color ReturnSpriteColor(string critName)
+    {
+        CreatureTemplate.Type type = (CreatureTemplate.Type)Enum.Parse(typeof(CreatureTemplate.Type), critName);
+        CreatureSymbol.IconSymbolData data = new IconSymbol.IconSymbolData(type, AbstractPhysicalObject.AbstractObjectType.Creature, 0);
+        return CreatureSymbol.ColorOfCreature(data);
+    }
+
+    //[OUTDATED] Function for inputting the CreatureName and returning it's associated icon sprite
     public static string GetCreatureSprite(string creatureName)
     {
         switch (creatureName)
