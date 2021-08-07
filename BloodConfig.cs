@@ -83,7 +83,7 @@ public class BloodConfig : OptionInterface
         this.resetButton.description = "Reset this creature's blood color to the mod's default.";
         this.modName = new OpLabel(new Vector2(400f, 552f), new Vector2(0f, 0f), "BLOOD MOD", FLabelAlignment.Center, true);
         this.modCredit = new OpLabel(new Vector2(400f, 532f), new Vector2(0f, 0f), "Created by LeeMoriya", FLabelAlignment.Center, false);
-        this.modVersion = new OpLabel(new Vector2(400f, 518f), new Vector2(0f, 0f), "Version: 1.1", FLabelAlignment.Center, false);
+        this.modVersion = new OpLabel(new Vector2(400f, 518f), new Vector2(0f, 0f), "Version: 1.2", FLabelAlignment.Center, false);
         this.rect = new OpRect(new Vector2(230f, 130f), new Vector2(370f, 360f), 0f);
         this.guide = new OpLabel(new Vector2(405f, 462f), new Vector2(0f, 0f), "Select creatures on the left and adjust their blood color using", FLabelAlignment.Center, false);
         this.guide2 = new OpLabel(new Vector2(405f, 442f), new Vector2(0f, 0f), "the color picker below. Finalize changes by clicking 'Apply'", FLabelAlignment.Center, false);
@@ -104,7 +104,7 @@ public class BloodConfig : OptionInterface
         this.compat = new OpCheckBox(new Vector2(265f, 12f), "wash", false);
         this.compat.description = "Rain from the mod Downpour will wash away blood.";
         this.compatLabel = new OpLabel(new Vector2(295f, 15f), new Vector2(), "Downpour Compatibility", FLabelAlignment.Left, false);
-        this.preset = new OpCheckBox(new Vector2(), "preset", false);
+        this.preset = new OpCheckBox(new Vector2(5000f,0f), "preset", false);
         foreach (PartialityMod mod in PartialityManager.Instance.modManager.loadedMods)
         {
             if (mod.ModID == "Downpour")
@@ -133,7 +133,7 @@ public class BloodConfig : OptionInterface
             }
             this.selected = "Slugcat";
         }
-        this.critList.SetContentSize(1600f - (52f * offsets.y), true);
+        this.critList.SetContentSize(1500f - (52f * offsets.y), true);
     }
 
     public override void Signal(UItrigger trigger, string signal)
@@ -232,52 +232,6 @@ public class BloodConfig : OptionInterface
         }
         for (int i = 0; i < this.critList.children.Count; i++)
         {
-            //Adjust sprite colors based on mouse distance
-            if (this.critList.children[i] is OpImage)
-            {
-                if (this.selected == (this.critList.children[i] as OpImage).description)
-                {
-                    (this.critList.children[i] as OpImage).sprite.color = rainbowColor;
-                }
-                else if ((this.critList.children[i] as OpImage).description != "?")
-                {
-                    if (Vector2.Distance((this.critList.children[i] as OpImage).pos + spriteOffset, Input.mousePosition) < 150f)
-                    {
-                        if (this.bloodPreview.valueBool == true && (this.critList.children[i] as OpImage).description != "")
-                        {
-                            (this.critList.children[i] as OpImage).sprite.color = Color.Lerp(this.configColors[(this.critList.children[i] as OpImage).description], (this.critList.children[i] as OpImage).color, Mathf.InverseLerp(-10f, 150f, Vector2.Distance((this.critList.children[i] as OpImage).pos + spriteOffset, Input.mousePosition)));
-                        }
-                        else
-                        {
-                            (this.critList.children[i] as OpImage).sprite.color = Color.Lerp(lightRainbowColor, (this.critList.children[i] as OpImage).color, Mathf.InverseLerp(-120f, 150f, Vector2.Distance((this.critList.children[i] as OpImage).pos + spriteOffset, Input.mousePosition)));
-                        }
-                    }
-                    else
-                    {
-                        (this.critList.children[i] as OpImage).sprite.color = (this.critList.children[i] as OpImage).color;
-                    }
-                }
-                else
-                {
-                    //Selected fade sprite
-                    this.selectedSprite.pos = this.selectPos + selectOffset;
-                    this.selectedSprite.sprite.color = rainbowPulseColor;
-                    this.selectedSprite.sprite.alpha = 0.4f;
-                    var rw = GameObject.FindObjectOfType<RainWorld>();
-                    if (rw != null)
-                    {
-                        this.selectedSprite.sprite.shader = rw.Shaders["FlatLight"];
-                    }
-                }
-                if (this.vibrant)
-                {
-                    this.previewOld.sprite.color = BloodMod.vibrantColors[this.selected];
-                }
-                else
-                {
-                    this.previewOld.sprite.color = BloodMod.defaultColors[this.selected];
-                }
-            }
             //Change button colors when selected
             if (this.critList.children[i] is OpSimpleButton)
             {
@@ -393,5 +347,26 @@ public class BloodConfig : OptionInterface
         //Generate new blood textures using modified colors
         BloodColor.GenerateBloodTextures(this.configColors);
         BloodMod.creatureColors = new Dictionary<string, Color>(this.configColors);
+        List<string> remove = new List<string>();
+        foreach (string name in Enum.GetNames(typeof(CreatureTemplate.Type)))
+        {
+            remove.Add(name);
+            if (!BloodMod.creatureBlacklist.Contains(name))
+            {
+                //Add new creatures to config if they are not present.
+                if (!this.configColors.ContainsKey(name))
+                {
+                    this.configColors.Add(name, new Color(0.8f, 0f, 0f));
+                }
+            }
+        }
+        //Remove modded crits if they are no longer present.
+        foreach (string crit in this.configColors.Keys)
+        {
+            if (!remove.Contains(crit))
+            {
+                this.configColors.Remove(crit);
+            }
+        }
     }
 }

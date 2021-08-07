@@ -88,16 +88,26 @@ class BloodColor
         {
             return "Sandbox_Randomize";
         }
-        CreatureTemplate.Type type = (CreatureTemplate.Type)Enum.Parse(typeof(CreatureTemplate.Type), critName);
-        CreatureSymbol.IconSymbolData data = new IconSymbol.IconSymbolData(type, AbstractPhysicalObject.AbstractObjectType.Creature, 0);
-        return CreatureSymbol.SpriteNameOfCreature(data);
+        try
+        {
+            CreatureTemplate.Type type = (CreatureTemplate.Type)Enum.Parse(typeof(CreatureTemplate.Type), critName);
+            CreatureSymbol.IconSymbolData data = new IconSymbol.IconSymbolData(type, AbstractPhysicalObject.AbstractObjectType.Creature, 0);
+            return CreatureSymbol.SpriteNameOfCreature(data);
+        }
+        catch { };
+        return "Futile_White";
     }
 
     public static Color ReturnSpriteColor(string critName)
     {
-        CreatureTemplate.Type type = (CreatureTemplate.Type)Enum.Parse(typeof(CreatureTemplate.Type), critName);
-        CreatureSymbol.IconSymbolData data = new IconSymbol.IconSymbolData(type, AbstractPhysicalObject.AbstractObjectType.Creature, 0);
-        return CreatureSymbol.ColorOfCreature(data);
+        try
+        {
+            CreatureTemplate.Type type = (CreatureTemplate.Type)Enum.Parse(typeof(CreatureTemplate.Type), critName);
+            CreatureSymbol.IconSymbolData data = new IconSymbol.IconSymbolData(type, AbstractPhysicalObject.AbstractObjectType.Creature, 0);
+            return CreatureSymbol.ColorOfCreature(data);
+        }
+        catch { };
+        return new Color(1f, 1f, 1f);
     }
 
     //[OUTDATED] Function for inputting the CreatureName and returning it's associated icon sprite
