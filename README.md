@@ -17,6 +17,8 @@ This mod adds new blood effects to the game, making combat and creature interact
 #### Blood splatters:
 
 - Drops of blood leave behind splatters on surfaces.
+- See the aftermath of creature fights that happened off screen.
+- Follow trails of blood to find your prey.
 
 #### Config Screen:
 
