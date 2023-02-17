@@ -5,8 +5,6 @@ using System.Text;
 using RWCustom;
 using UnityEngine;
 using System.Reflection;
-using Partiality;
-using Partiality.Modloader;
 
 public class BloodEmitter : UpdatableAndDeletable
 {
@@ -21,76 +19,74 @@ public class BloodEmitter : UpdatableAndDeletable
     public float velocity;
     public float maxVelocity;
     public float currentTime;
+    public int counter;
 
     public BloodEmitter(Spear spear, BodyChunk chunk, float velocity, float bleedTime)
     {
-        //Downpour support, washes away blood splatters if enabled
-        this.currentTime = Time.time;
-        this.spear = spear;
-        this.chunk = chunk;
-        this.bleedTime = bleedTime;
-        this.initialBleedTime = bleedTime;
-        this.maxVelocity = velocity + (BloodMod.goreMultiplier * 3);
-        //Default blood color
-        this.creatureColor = new Color(0.5f, 0f, 0f);
-        this.splatterColor = "Slugcat";
-        //Individual blood colors
-        if (this.chunk.owner is Creature)
+        try
         {
-            //Get creature blood color from dictionary
-            if (BloodMod.creatureColors.ContainsKey((this.chunk.owner as Creature).Template.type.ToString()))
+            //Downpour support, washes away blood splatters if enabled
+            this.currentTime = Time.time;
+            this.spear = spear;
+            this.chunk = chunk;
+            this.bleedTime = bleedTime;
+            this.initialBleedTime = bleedTime;
+            this.maxVelocity = velocity;
+            //Default blood color
+            creatureColor = new Color(0.5f, 0f, 0f);
+            splatterColor = "Slugcat";
+            //Individual blood colors
+            if (this.chunk.owner is Creature)
             {
-                this.creatureColor = BloodMod.creatureColors[(this.chunk.owner as Creature).Template.type.ToString()];
-                this.splatterColor = (this.chunk.owner as Creature).Template.type.ToString();
+                Debug.Log("Emitter: " + (this.chunk.owner as Creature).Template.type.value);
+                //Get creature blood color from dictionary
+                if (BloodMod.creatureColors.ContainsKey((this.chunk.owner as Creature).Template.type.value))
+                {
+                    creatureColor = BloodMod.creatureColors[(this.chunk.owner as Creature).Template.type.value];
+                    splatterColor = (this.chunk.owner as Creature).Template.type.value;
+                }
             }
         }
+        catch (Exception e)
+        {
+            Debug.LogException(e);
+        }
+
     }
 
     public override void Update(bool eu)
     {
         base.Update(eu);
-        this.velocity = Mathf.Lerp(maxVelocity * UnityEngine.Random.Range(0.5f, 1f), -1f, Mathf.PingPong(Time.time - this.currentTime, 1));
-        if (this.emitPos.y > this.room.RoomRect.top + 100f)
-        {
+        counter++;
+        velocity = Mathf.Lerp(maxVelocity * UnityEngine.Random.Range(0.5f, 1f), -1f, Mathf.Sin(counter / 5f));
+
+        if (emitPos.y > room.RoomRect.top + 100f)
             Destroy();
-        }
-        if (this.chunk == null)
-        {
-            this.Destroy();
-        }
-        if ((this.chunk.owner as Creature).dead)
-        {
-            //Speed up bleed time if the creature is dead
-            this.bleedTime -= 0.8f * Time.deltaTime;
-        }
+
+        if (chunk == null)
+            Destroy();
+
+        if ((chunk.owner as Creature).dead)
+            bleedTime -= 0.05f;
         else
+            bleedTime -= 0.025f;
+
+        if (bleedTime <= 0f)
+            Destroy();
+
+        else if (!(chunk.owner as Creature).inShortcut)
         {
-            this.bleedTime -= 0.5f * Time.deltaTime;
-        }
-        if (this.bleedTime <= 0f)
-        {
-            this.Destroy();
-        }
-        else if (!(this.chunk.owner as Creature).inShortcut)
-        {
-            if (this.spear != null && this.spear.stuckInAppendage != null)
-            {
-                this.emitPos = this.spear.stuckInAppendage.appendage.OnAppendagePosition(this.spear.stuckInAppendage);
-            }
+            if (spear != null && spear.stuckInAppendage != null)
+                emitPos = spear.stuckInAppendage.appendage.OnAppendagePosition(spear.stuckInAppendage);
             else
+                emitPos = chunk.pos;
+
+            if (velocity >= UnityEngine.Random.Range(0.65f, 1.1f))
             {
-                this.emitPos = this.chunk.pos;
-            }
-            if (this.velocity >= UnityEngine.Random.Range(0.65f, 1.1f))
-            {
-                if (this.spear != null)
-                {
-                    this.room.AddObject(new BloodParticle(this.emitPos, this.spear.lastRotation, this.creatureColor, this.splatterColor, this, velocity));
-                }
+                if (spear != null)
+                    room.AddObject(new BloodParticle(emitPos, spear.rotation, creatureColor, splatterColor, this, velocity));
                 else
-                {
-                    this.room.AddObject(new BloodParticle(this.emitPos, Custom.RNV(), this.creatureColor, this.splatterColor, this, velocity));
-                }
+                    room.AddObject(new BloodParticle(emitPos, Custom.RNV(), creatureColor, splatterColor, this, velocity));
             }
         }
     }
@@ -108,100 +104,98 @@ public class BloodParticle : CosmeticSprite
     public Vector2 lastLastLastPos;
     public bool collision = false;
     public string splatterColor;
-    public bool downpour;
 
     public BloodParticle(Vector2 pos, Vector2 angle, Color color, string splatterColor, BloodEmitter emitter, float vel)
     {
         this.splatterColor = splatterColor;
-        this.lastPos = pos;
-        this.lastLastPos = pos;
-        this.lastLastLastPos = pos;
+        lastPos = pos;
+        lastLastPos = pos;
+        lastLastLastPos = pos;
         this.pos = pos;
         this.color = color;
         this.emitter = emitter;
         if (this.emitter != null)
         {
-            this.bleedTime = this.emitter.bleedTime;
-            this.initialBleedTime = this.emitter.bleedTime;
-            if (this.emitter.chunk == null)
+            bleedTime = emitter.bleedTime;
+            initialBleedTime = emitter.bleedTime;
+            if (emitter.chunk == null)
             {
-                this.vel = Custom.RotateAroundVector(angle, new Vector2(UnityEngine.Random.Range(-1.7f, 1.7f), vel), Custom.VecToDeg(this.emitter.spear.stuckInAppendage.appendage.OnAppendageDirection(this.emitter.spear.stuckInAppendage)) + 230f);
+                this.vel = Custom.RotateAroundVector(angle, new Vector2(UnityEngine.Random.Range(-1.7f, 1.7f), vel), Custom.VecToDeg(emitter.spear.stuckInAppendage.appendage.OnAppendageDirection(emitter.spear.stuckInAppendage)) + 230f);
             }
             else
             {
-                this.vel = Custom.RotateAroundVector(angle, new Vector2(UnityEngine.Random.Range(-1.7f, 1.7f), vel), Custom.VecToDeg(this.emitter.chunk.Rotation) + 230f);
+                this.vel = Custom.RotateAroundVector(angle, new Vector2(UnityEngine.Random.Range(-1.7f, 1.7f), vel), Custom.VecToDeg(emitter.chunk.Rotation) + 230f);
             }
         }
         else
         {
             this.vel = angle;
-            this.bleedTime = 1f;
-            this.initialBleedTime = 1f;
+            bleedTime = 1f;
+            initialBleedTime = 1f;
         }
     }
 
     public override void Update(bool eu)
     {
-        this.bleedTime = this.bleedTime - 0.2f * Time.deltaTime;
+        bleedTime -= 0.025f;
         if (!collision)
         {
-            this.lastPos = this.pos;
-            this.lastLastPos = this.lastPos;
-            this.lastLastLastPos = this.lastLastPos;
-            this.vel.y -= this.room.gravity;
+            lastPos = pos;
+            lastLastPos = lastPos;
+            lastLastLastPos = lastLastPos;
+            vel.y -= room.gravity;
             //Collision
-            if (this.room.GetTile(this.pos).Terrain == Room.Tile.TerrainType.ShortcutEntrance)
+            if (room.GetTile(pos).Terrain == Room.Tile.TerrainType.ShortcutEntrance)
             {
-                this.Destroy();
+                Destroy();
             }
-            if (this.room.GetTile(this.pos).Terrain == Room.Tile.TerrainType.Solid)
+            if (room.GetTile(pos).Terrain == Room.Tile.TerrainType.Solid)
             {
-                Vector2 velocity = this.vel;
                 //Hits floor
-                if (this.room.GetTile(this.pos + new Vector2(0f, 20f)).Terrain == Room.Tile.TerrainType.Air)
+                if (room.GetTile(pos + new Vector2(0f, 20f)).Terrain == Room.Tile.TerrainType.Air)
                 {
                     //If two tiles above the droplet is air, move the droplet up one tile
-                    this.pos.y = this.room.MiddleOfTile(this.pos).y + 10f;
+                    pos.y = room.MiddleOfTile(pos).y + 10f;
                 }
                 //Hits ceiling
-                else if (this.room.GetTile(this.pos + new Vector2(0f, -20f)).Terrain == Room.Tile.TerrainType.Air)
+                else if (room.GetTile(pos + new Vector2(0f, -20f)).Terrain == Room.Tile.TerrainType.Air)
                 {
                     //If two tiles below the droplet is air, move the droplet down one tile
-                    this.pos.y = this.room.MiddleOfTile(this.pos).y - 10f;
+                    pos.y = room.MiddleOfTile(pos).y - 10f;
                 }
                 //Hits left wall
-                else if (this.room.GetTile(this.pos + new Vector2(20f, 0f)).Terrain == Room.Tile.TerrainType.Air)
+                else if (room.GetTile(pos + new Vector2(20f, 0f)).Terrain == Room.Tile.TerrainType.Air)
                 {
                     //If two tiles to the right is air, move the droplet right one tile
-                    this.pos.x = this.room.MiddleOfTile(this.pos).x + 10f;
+                    pos.x = room.MiddleOfTile(pos).x + 10f;
                 }
                 //Hits right wall
-                else if (this.room.GetTile(this.pos + new Vector2(-20f, 0f)).Terrain == Room.Tile.TerrainType.Air)
+                else if (room.GetTile(pos + new Vector2(-20f, 0f)).Terrain == Room.Tile.TerrainType.Air)
                 {
                     //If two tiles to the left is air, move the droplet left one tile
-                    this.pos.x = this.room.MiddleOfTile(this.pos).x - 10f;
+                    pos.x = room.MiddleOfTile(pos).x - 10f;
                 }
 
-                if (this.room.GetTile(this.pos + new Vector2(0f, 20f)).Terrain != Room.Tile.TerrainType.ShortcutEntrance || this.room.GetTile(this.pos + new Vector2(0f, 20f)).Terrain != Room.Tile.TerrainType.Solid)
+                if (room.GetTile(pos + new Vector2(0f, 20f)).Terrain != Room.Tile.TerrainType.ShortcutEntrance || room.GetTile(pos + new Vector2(0f, 20f)).Terrain != Room.Tile.TerrainType.Solid)
                 {
-                    if (this.emitter != null)
+                    if (emitter != null)
                     {
-                        if (UnityEngine.Random.value > 0.5f - (BloodMod.goreMultiplier * 0.3f))
+                        if (UnityEngine.Random.value > 0.85)
                         {
-                            this.room.AddObject(new BloodSplatter(this.pos, this.splatterColor + "Tex", UnityEngine.Random.Range(10f, 50f + BloodMod.goreMultiplier * 25)));
+                            room.AddObject(new BloodSplatter(pos, splatterColor + "Tex", UnityEngine.Random.Range(10f, 50f)));
                         }
                     }
                     else
                     {
                         for (int i = 0; i < 3; i++)
                         {
-                            this.room.AddObject(new BloodSplatter(this.pos, this.splatterColor + "Tex", UnityEngine.Random.Range(20f, 30f)));
+                            room.AddObject(new BloodSplatter(pos, splatterColor + "Tex", UnityEngine.Random.Range(20f, 30f)));
                         }
                     }
                     base.slatedForDeletetion = true;
                 }
                 //Droplet has collided, so enable bool which slates it for deletion
-                this.collision = true;
+                collision = true;
             }
         }
         else
@@ -228,8 +222,8 @@ public class BloodParticle : CosmeticSprite
     }
     public override void DrawSprites(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam, float timeStacker, Vector2 camPos)
     {
-        Vector2 vector = Vector2.Lerp(this.lastPos, this.pos, timeStacker);
-        Vector2 vector2 = Vector2.Lerp(this.lastLastLastPos, this.lastLastPos, timeStacker);
+        Vector2 vector = Vector2.Lerp(lastPos, pos, timeStacker);
+        Vector2 vector2 = Vector2.Lerp(lastLastLastPos, lastLastPos, timeStacker);
         if (Custom.DistLess(vector, vector2, 9f))
         {
             vector2 = vector + Custom.DirVec(vector, vector2) * 6f;
@@ -239,36 +233,36 @@ public class BloodParticle : CosmeticSprite
         (sLeaser.sprites[0] as TriangleMesh).MoveVertice(0, vector + a * 1f - camPos);
         (sLeaser.sprites[0] as TriangleMesh).MoveVertice(1, vector - a * 1f - camPos);
         (sLeaser.sprites[0] as TriangleMesh).MoveVertice(2, vector2 - camPos);
-        sLeaser.sprites[1].x = Mathf.Lerp(this.lastPos.x, this.pos.x, timeStacker) - camPos.x;
-        sLeaser.sprites[1].y = Mathf.Lerp(this.lastPos.y, this.pos.y, timeStacker) - camPos.y;
+        sLeaser.sprites[1].x = Mathf.Lerp(lastPos.x, pos.x, timeStacker) - camPos.x;
+        sLeaser.sprites[1].y = Mathf.Lerp(lastPos.y, pos.y, timeStacker) - camPos.y;
         sLeaser.sprites[1].rotation = UnityEngine.Random.value;
-        if (this.emitter != null)
+        if (emitter != null)
         {
-            if (this.bleedTime > this.emitter.initialBleedTime * 0.985f)
+            if (bleedTime > emitter.initialBleedTime * 0.985f)
             {
-                sLeaser.sprites[1].alpha = Mathf.Lerp(0.8f, 0.65f + (BloodMod.goreMultiplier * 0.35f), Mathf.InverseLerp(0f, 30f, this.vel.magnitude));
-                sLeaser.sprites[1].scale = Mathf.Lerp(3f + (BloodMod.goreMultiplier * 2), 2f, Mathf.InverseLerp(0f, 30f, this.vel.magnitude));
+                sLeaser.sprites[1].alpha = Mathf.Lerp(0.8f, 0.65f + (BloodMod.goreMultiplier * 0.35f), Mathf.InverseLerp(0f, 30f, vel.magnitude));
+                sLeaser.sprites[1].scale = Mathf.Lerp(3f + (BloodMod.goreMultiplier * 2), 2f, Mathf.InverseLerp(0f, 30f, vel.magnitude));
             }
             else
             {
-                sLeaser.sprites[1].alpha = Mathf.Lerp(0.55f, 0.25f + (BloodMod.goreMultiplier * 0.2f), Mathf.InverseLerp(0f, 30f, this.vel.magnitude));
-                sLeaser.sprites[1].scale = Mathf.Lerp(2f + (BloodMod.goreMultiplier * 1.3f), 18f, Mathf.InverseLerp(0f, 30f, this.vel.magnitude));
+                sLeaser.sprites[1].alpha = Mathf.Lerp(0.55f, 0.25f + (BloodMod.goreMultiplier * 0.2f), Mathf.InverseLerp(0f, 30f, vel.magnitude));
+                sLeaser.sprites[1].scale = Mathf.Lerp(2f + (BloodMod.goreMultiplier * 1.3f), 18f, Mathf.InverseLerp(0f, 30f, vel.magnitude));
             }
         }
         else
         {
-            if (this.bleedTime > this.initialBleedTime * 0.985f)
+            if (bleedTime > initialBleedTime * 0.985f)
             {
-                sLeaser.sprites[1].alpha = Mathf.Lerp(0.7f, 0.5f + (BloodMod.goreMultiplier * 0.3f), Mathf.InverseLerp(0f, 30f, this.vel.magnitude));
-                sLeaser.sprites[1].scale = Mathf.Lerp(1f + (BloodMod.goreMultiplier * 2), 2f, Mathf.InverseLerp(0f, 30f, this.vel.magnitude));
+                sLeaser.sprites[1].alpha = Mathf.Lerp(0.7f, 0.5f + (BloodMod.goreMultiplier * 0.3f), Mathf.InverseLerp(0f, 30f, vel.magnitude));
+                sLeaser.sprites[1].scale = Mathf.Lerp(1f + (BloodMod.goreMultiplier * 2), 2f, Mathf.InverseLerp(0f, 30f, vel.magnitude));
             }
             else
             {
-                sLeaser.sprites[1].alpha = Mathf.Lerp(0.5f, 0.2f + (BloodMod.goreMultiplier * 0.13f), Mathf.InverseLerp(0f, 30f, this.vel.magnitude));
-                sLeaser.sprites[1].scale = Mathf.Lerp(1f + BloodMod.goreMultiplier, 8f, Mathf.InverseLerp(0f, 30f, this.vel.magnitude));
+                sLeaser.sprites[1].alpha = Mathf.Lerp(0.5f, 0.2f + (BloodMod.goreMultiplier * 0.13f), Mathf.InverseLerp(0f, 30f, vel.magnitude));
+                sLeaser.sprites[1].scale = Mathf.Lerp(1f + BloodMod.goreMultiplier, 8f, Mathf.InverseLerp(0f, 30f, vel.magnitude));
             }
         }
-        if (base.slatedForDeletetion || this.room != rCam.room)
+        if (base.slatedForDeletetion || room != rCam.room)
         {
             sLeaser.CleanSpritesAndRemove();
         }
@@ -276,8 +270,8 @@ public class BloodParticle : CosmeticSprite
     public override void ApplyPalette(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam, RoomPalette palette)
     {
         base.ApplyPalette(sLeaser, rCam, palette);
-        sLeaser.sprites[0].color = Color.Lerp(this.color, this.room.game.cameras[0].currentPalette.blackColor, palette.darkness * 0.8f);
-        sLeaser.sprites[1].color = Color.Lerp(this.color, this.room.game.cameras[0].currentPalette.blackColor, palette.darkness * 0.8f);
+        sLeaser.sprites[0].color = Color.Lerp(color, room.game.cameras[0].currentPalette.blackColor, palette.darkness * 0.8f);
+        sLeaser.sprites[1].color = Color.Lerp(color, room.game.cameras[0].currentPalette.blackColor, palette.darkness * 0.8f);
     }
     public override void AddToContainer(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam, FContainer newContatiner)
     {

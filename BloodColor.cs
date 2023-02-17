@@ -42,10 +42,10 @@ class BloodColor
                 {
                     Futile.atlasManager.UnloadAtlas(creatureColor.Key + "Tex");
                 }
-                Futile.atlasManager.LoadAtlasFromTexture(creatureColor.Key + "Tex", BloodMod.bloodTextures[creatureColor.Key]);
+                Futile.atlasManager.LoadAtlasFromTexture(creatureColor.Key + "Tex", BloodMod.bloodTextures[creatureColor.Key], false);
                 if (Futile.atlasManager.DoesContainElementWithName(creatureColor.Key + "Tex"))
                 {
-                    //Debug.Log("Success!");
+                    Debug.Log($"Success: {creatureColor.Key}");
                 }
             }
             catch
@@ -79,7 +79,7 @@ class BloodColor
         {
             Futile.atlasManager.UnloadAtlas(creature + "Tex");
         }
-        Futile.atlasManager.LoadAtlasFromTexture(creature + "Tex", BloodMod.bloodTextures[creature]);
+        Futile.atlasManager.LoadAtlasFromTexture(creature + "Tex", BloodMod.bloodTextures[creature], false);
     }
     //[NEW]
     public static string ReturnCreatureSprite(string critName)

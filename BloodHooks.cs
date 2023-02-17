@@ -21,9 +21,34 @@ public class BloodHooks
         On.Centipede.BitByPlayer += Centipede_BitByPlayer;
         On.VultureGrub.BitByPlayer += VultureGrub_BitByPlayer;
         On.Hazer.BitByPlayer += Hazer_BitByPlayer;
-        On.Player.EatMeatUpdate += Player_EatMeatUpdate;
+        On.Player.EatMeatUpdate += Player_EatMeatUpdate; ;
         On.Rock.HitSomething += Rock_HitSomething;
         On.RainWorldGame.ctor += RainWorldGame_ctor;
+        On.RainWorld.Update += RainWorld_Update;
+    }
+
+    private static void Player_EatMeatUpdate(On.Player.orig_EatMeatUpdate orig, Player self, int graspIndex)
+    {
+        if (self.grasps[graspIndex] != null && self.grasps[graspIndex].grabbed is Creature)
+        {
+            if ((self.eatMeat > 45 && self.eatMeat < 50) || (self.eatMeat > 55 && self.eatMeat < 60) || (self.eatMeat > 65 && self.eatMeat < 75))
+            {
+                self.room.AddObject(new BloodParticle(self.bodyChunks[0].pos, new Vector2(UnityEngine.Random.Range(-3f, 3f), UnityEngine.Random.Range(5f, 10f)), BloodMod.creatureColors[(self.grasps[graspIndex].grabbedChunk.owner as Creature).Template.type.ToString()], (self.grasps[graspIndex].grabbedChunk.owner as Creature).Template.type.ToString(), null, 2.3f));
+            }
+        }
+        orig.Invoke(self, graspIndex);
+    }
+
+    private static void RainWorld_Update(On.RainWorld.orig_Update orig, RainWorld self)
+    {
+        try
+        {
+            orig.Invoke(self);
+        }
+        catch(Exception e)
+        {
+            Debug.LogException(e);
+        }
     }
 
     private static void RainWorldGame_ctor(On.RainWorldGame.orig_ctor orig, RainWorldGame self, ProcessManager manager)
@@ -44,18 +69,6 @@ public class BloodHooks
         }
         orig.Invoke(self, result, eu);
         return true;
-    }
-
-    private static void Player_EatMeatUpdate(On.Player.orig_EatMeatUpdate orig, Player self)
-    {
-        if(self.grasps[0] != null && self.grasps[0].grabbed is Creature)
-        {
-            if((self.eatMeat > 45 && self.eatMeat < 50) || (self.eatMeat > 55 && self.eatMeat < 60) || (self.eatMeat > 65 && self.eatMeat < 75))
-            {
-                self.room.AddObject(new BloodParticle(self.bodyChunks[0].pos, new Vector2(UnityEngine.Random.Range(-3f, 3f), UnityEngine.Random.Range(5f, 10f)), BloodMod.creatureColors[(self.grasps[0].grabbedChunk.owner as Creature).Template.type.ToString()], (self.grasps[0].grabbedChunk.owner as Creature).Template.type.ToString(), null, 2.3f));
-            }
-        }
-        orig.Invoke(self);
     }
 
     //Small Creatures
