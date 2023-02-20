@@ -21,7 +21,7 @@ public class BloodHooks
         On.Centipede.BitByPlayer += Centipede_BitByPlayer;
         On.VultureGrub.BitByPlayer += VultureGrub_BitByPlayer;
         On.Hazer.BitByPlayer += Hazer_BitByPlayer;
-        On.Player.EatMeatUpdate += Player_EatMeatUpdate; ;
+        On.Player.EatMeatUpdate += Player_EatMeatUpdate;
         On.Rock.HitSomething += Rock_HitSomething;
         On.RainWorldGame.ctor += RainWorldGame_ctor;
         On.RainWorld.Update += RainWorld_Update;
