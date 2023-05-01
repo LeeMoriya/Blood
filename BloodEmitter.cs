@@ -49,6 +49,7 @@ public class BloodEmitter : UpdatableAndDeletable
         }
         catch (Exception e)
         {
+            this.Destroy();
             Debug.LogException(e);
         }
 
@@ -66,7 +67,7 @@ public class BloodEmitter : UpdatableAndDeletable
         if (chunk == null)
             Destroy();
 
-        if ((chunk.owner as Creature).dead)
+        if ((chunk.owner is Creature) && (chunk.owner as Creature).dead)
             bleedTime -= 0.05f;
         else
             bleedTime -= 0.025f;
@@ -74,7 +75,7 @@ public class BloodEmitter : UpdatableAndDeletable
         if (bleedTime <= 0f)
             Destroy();
 
-        else if (!(chunk.owner as Creature).inShortcut)
+        else if ((chunk.owner is Creature) && !(chunk.owner as Creature).inShortcut)
         {
             if (spear != null && spear.stuckInAppendage != null)
                 emitPos = spear.stuckInAppendage.appendage.OnAppendagePosition(spear.stuckInAppendage);
@@ -180,7 +181,7 @@ public class BloodParticle : CosmeticSprite
                 {
                     if (emitter != null)
                     {
-                        if (UnityEngine.Random.value > 0.85)
+                        if (UnityEngine.Random.value < Mathf.Lerp(0f, 0.8f, Mathf.Lerp(0f, 100f, (float)BloodMod.Options.splatterRate.Value)))
                         {
                             room.AddObject(new BloodSplatter(pos, splatterColor + "Tex", UnityEngine.Random.Range(10f, 50f)));
                         }

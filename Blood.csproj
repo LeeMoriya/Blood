@@ -34,9 +34,6 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Assembly-CSharp">
-      <HintPath>F:\Steam Games\steamapps\common\Rain World\RainWorld_Data\Managed\Assembly-CSharp.dll</HintPath>
-    </Reference>
     <Reference Include="BepInEx">
       <HintPath>F:\Steam Games\steamapps\common\Rain World\BepInEx\core\BepInEx.dll</HintPath>
       <Private>False</Private>
@@ -73,11 +70,9 @@
     <Compile Include="BloodConfig.cs" />
     <Compile Include="BloodEmitter.cs" />
     <Compile Include="BloodHooks.cs" />
+    <Compile Include="BloodSave.cs" />
     <Compile Include="BloodSplatter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

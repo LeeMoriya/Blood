@@ -134,49 +134,10 @@ public class BloodHooks
         }
     }
 
-    //Impaled by KingTusks
-    private static bool KingTusks_ThisCreatureImpaled(On.KingTusks.orig_ThisCreatureImpaled orig, KingTusks self, AbstractCreature crit)
-    {
-        for (int i = 0; i < self.tusks.Length; i++)
-        {
-            if (self.tusks[i].impaleChunk != null && self.tusks[i].impaleChunk.owner is Creature && (self.tusks[i].impaleChunk.owner as Creature).abstractCreature == crit)
-            {
-                if (!BloodMod.chunkTracker.Contains(self.tusks[i].impaleChunk))
-                {
-                    self.vulture.room.AddObject(new BloodEmitter(null, crit.realizedCreature.mainBodyChunk, 8f, 4f));
-                    BloodMod.chunkTracker.Add(self.tusks[i].impaleChunk);
-                }
-                return true;
-            }
-        }
-        return false;
-    }
 
-
-    private static void Room_Update(On.Room.orig_Update orig, Room self)
-    {
-        //Track creatures which have been grabbed by vultures, remove them from the list if no longer grabbed
-        orig.Invoke(self);
-        if (BloodMod.chunkTracker != null && BloodMod.chunkTracker.Count > 0)
-        {
-            for (int i = 0; i < BloodMod.chunkTracker.Count; i++)
-            {
-                if (BloodMod.chunkTracker[i].owner is Creature)
-                {
-                    if ((BloodMod.chunkTracker[i].owner as Creature).grabbedBy == null)
-                    {
-                        BloodMod.chunkTracker.RemoveAt(i);
-                    }
-                }
-            }
-        }
-        Player player = (self.game.Players.Count <= 0) ? null : (self.game.Players[0].realizedCreature as Player);
-        if (player != null && !player.dead)
-        {
-            BloodMod.impaled = false;
-        }
-    }
-
+    //---------------------------------------------
+    //Really bad ChunkTracker stuff needs replacing
+    //---------------------------------------------
     private static void Vulture_Carry(On.Vulture.orig_Carry orig, Vulture self)
     {
         //Add creature to a list once grabbed to prevent multiple emitters being spawned
@@ -190,6 +151,59 @@ public class BloodHooks
             }
         }
     }
+
+    //Impaled by KingTusks
+    private static bool KingTusks_ThisCreatureImpaled(On.KingTusks.orig_ThisCreatureImpaled orig, KingTusks self, AbstractCreature crit)
+    {
+        for (int i = 0; i < self.tusks.Length; i++)
+        {
+            if (self.tusks[i].impaleChunk != null && self.tusks[i].impaleChunk.owner is Creature && (self.tusks[i].impaleChunk.owner as Creature).abstractCreature == crit)
+            {
+                if (!BloodMod.chunkTracker.Contains(self.tusks[i].impaleChunk))
+                {
+                    //self.vulture.room.AddObject(new BloodEmitter(null, crit.realizedCreature.mainBodyChunk, 8f, 4f));
+                    if(crit.realizedCreature != null && crit.realizedCreature.room != null)
+                    {
+                        crit.realizedCreature.room.AddObject(new BloodEmitter(null, self.tusks[i].impaleChunk, UnityEngine.Random.Range(7f, 8f), 1.5f));
+                    }
+                    BloodMod.chunkTracker.Add(self.tusks[i].impaleChunk);
+                }
+                return true;
+            }
+        }
+        return orig.Invoke(self,crit);
+    }
+
+    private static void Room_Update(On.Room.orig_Update orig, Room self)
+    {
+        //Track creatures which have been grabbed by vultures, remove them from the list if no longer grabbed
+        orig.Invoke(self);
+        try
+        {
+            if (BloodMod.chunkTracker != null && BloodMod.chunkTracker.Count > 0)
+            {
+                for (int i = BloodMod.chunkTracker.Count - 1; i >= 0; i--)
+                {
+                    if (BloodMod.chunkTracker[i].owner is Creature)
+                    {
+                        if ((BloodMod.chunkTracker[i].owner as Creature).grabbedBy == null)
+                        {
+                            BloodMod.chunkTracker.RemoveAt(i);
+                        }
+                    }
+                }
+            }
+        }
+        catch(Exception e)
+        {
+            Debug.LogException(e);
+        }
+    }
+
+
+
+
+
 
     private static void BigNeedleWorm_Swish(On.BigNeedleWorm.orig_Swish orig, BigNeedleWorm self)
     {
