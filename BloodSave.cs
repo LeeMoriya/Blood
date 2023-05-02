@@ -41,6 +41,10 @@ public static class BloodData
                     dict.Add(split[0], ParseColor(colors));
                 }
             }
+            else
+            {
+                return BloodMod.defaultColors;
+            }
             return dict;
         }
         catch(Exception e)

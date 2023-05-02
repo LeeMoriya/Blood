@@ -8,6 +8,34 @@ public static class BloodColor
 {
     public static void GenerateBloodTextures(Dictionary<string, Color> creatureColors)
     {
+        //Create base texture that will be modified for each blood color
+        BloodMod.bloodTex = new Texture2D(32, 16, TextureFormat.ARGB32, false);
+        BloodMod.bloodTex.anisoLevel = 0;
+        BloodMod.bloodTex.filterMode = FilterMode.Point;
+        byte[] bloodTex = Convert.FromBase64String(BloodMod.bloodData);
+        BloodMod.bloodTex.LoadImage(bloodTex);
+        BloodMod.w = BloodMod.bloodTex.width;
+        BloodMod.h = BloodMod.bloodTex.height;
+
+        //Reset the bloodTexture Dictionary
+        BloodMod.bloodTextures = new Dictionary<string, Texture2D>();
+        foreach (string name in ExtEnumBase.GetNames(typeof(CreatureTemplate.Type)))
+        {
+            //If the creature is modded, add it to the colors Dictionary with a default color
+            if (!BloodMod.creatureBlacklist.Contains(name))
+            {
+                if (!BloodMod.defaultColors.ContainsKey(name))
+                {
+                    BloodMod.defaultColors.Add(name, new Color(0.5f, 0f, 0f));
+                }
+                if (!BloodMod.vibrantColors.ContainsKey(name))
+                {
+                    BloodMod.vibrantColors.Add(name, new Color(0.5f, 0f, 0f));
+                }
+                BloodMod.bloodTextures.Add(name, new Texture2D(BloodMod.w, BloodMod.h));
+            }
+        }
+
         Debug.Log("BLOOD: Generating blood textures...");
         //Get colors from texture
         Color[] defaultColors = BloodMod.bloodTex.GetPixels();
