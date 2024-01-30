@@ -113,7 +113,7 @@ public class BloodHooks
         orig.Invoke(self, grasp, eu);
         for (int i = 0; i < 2; i++)
         {
-            self.room.AddObject(new BloodParticle(self.bodyChunks[0].pos, new Vector2(UnityEngine.Random.Range(-3f, 3f), UnityEngine.Random.Range(1f, 5f)), BloodMod.creatureColors["JellyFish"], "JellyFish", null, 1.3f));
+            self.room.AddObject(new BloodParticle(self.bodyChunks[0].pos, new Vector2(UnityEngine.Random.Range(-3f, 3f), UnityEngine.Random.Range(1f, 5f)), BloodMod.creatureColors["Hazer"], "Hazer", null, 1.3f));
         }
     }
 
@@ -200,11 +200,6 @@ public class BloodHooks
         }
     }
 
-
-
-
-
-
     private static void BigNeedleWorm_Swish(On.BigNeedleWorm.orig_Swish orig, BigNeedleWorm self)
     {
         //Create emitter when impaled by NeedleWorm
@@ -229,7 +224,7 @@ public class BloodHooks
     {
         //Create an emitter when a create is impaled by a spear
         orig.Invoke(self, result, eu);
-        if (self.stuckInChunk != null)
+        if (self != null && self.stuckInChunk != null)
         {
             self.room.AddObject(new BloodEmitter(self, self.stuckInChunk, UnityEngine.Random.Range(5f, 8f), UnityEngine.Random.Range(1f, 3f)));
         }

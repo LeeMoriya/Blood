@@ -32,6 +32,10 @@ public static class BloodColor
                 {
                     BloodMod.vibrantColors.Add(name, new Color(0.5f, 0f, 0f));
                 }
+                if (!BloodMod.creatureColors.ContainsKey(name))
+                {
+                    BloodMod.creatureColors.Add(name, new Color(0.5f, 0f, 0f));
+                }
                 BloodMod.bloodTextures.Add(name, new Texture2D(BloodMod.w, BloodMod.h));
             }
         }
@@ -42,7 +46,7 @@ public static class BloodColor
         //Modify the colors to match each one in the dictionary
         foreach (KeyValuePair<string, Color> creatureColor in creatureColors)
         {
-            Debug.Log("Attempting to create blood texture for " + creatureColor.Key + "...");
+            //Debug.Log("Attempting to create blood texture for " + creatureColor.Key + "...");
             try
             {
                 Color[] newColors = defaultColors;
@@ -62,12 +66,12 @@ public static class BloodColor
                 if (Futile.atlasManager.DoesContainElementWithName(creatureColor.Key + "Tex"))
                 {
                     Futile.atlasManager.UnloadAtlas(creatureColor.Key + "Tex");
-                    Debug.Log($"BLOOD: Remove old Texture for: {creatureColor.Key}");
+                    //Debug.Log($"BLOOD: Remove old Texture for: {creatureColor.Key}");
                 }
                 Futile.atlasManager.LoadAtlasFromTexture(creatureColor.Key + "Tex", BloodMod.bloodTextures[creatureColor.Key], false);
                 if (Futile.atlasManager.DoesContainElementWithName(creatureColor.Key + "Tex"))
                 {
-                    Debug.Log($"BLOOD: Success: {creatureColor.Key} - R: {creatureColor.Value.r} G: {creatureColor.Value.g} B: {creatureColor.Value.b}");
+                    //Debug.Log($"BLOOD: Success: {creatureColor.Key} - R: {creatureColor.Value.r} G: {creatureColor.Value.g} B: {creatureColor.Value.b}");
                 }
             }
             catch

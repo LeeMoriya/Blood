@@ -38,7 +38,7 @@ public class BloodEmitter : UpdatableAndDeletable
             //Individual blood colors
             if (this.chunk.owner is Creature)
             {
-                Debug.Log("Emitter: " + (this.chunk.owner as Creature).Template.type.value);
+                //Debug.Log("Emitter: " + (this.chunk.owner as Creature).Template.type.value);
                 //Get creature blood color from dictionary
                 if (BloodMod.creatureColors.ContainsKey((this.chunk.owner as Creature).Template.type.value))
                 {
@@ -214,9 +214,9 @@ public class BloodParticle : CosmeticSprite
         };
         TriangleMesh triangleMesh = new TriangleMesh("Futile_White", tris, false, false);
         sLeaser.sprites[0] = triangleMesh;
-        sLeaser.sprites[0].color = Color.Lerp(this.color, this.room.game.cameras[0].currentPalette.blackColor, 0.3f);
+        sLeaser.sprites[0].color = Color.Lerp(color, rCam.currentPalette.blackColor, 0.3f);
         sLeaser.sprites[1] = new FSprite("Futile_White", true);
-        sLeaser.sprites[1].color = Color.Lerp(this.color, this.room.game.cameras[0].currentPalette.blackColor, 0.3f);
+        sLeaser.sprites[1].color = Color.Lerp(color, rCam.currentPalette.blackColor, 0.3f);
         sLeaser.sprites[1].shader = rCam.game.rainWorld.Shaders["Spores"];
         sLeaser.sprites[1].scale = 5f;
         this.AddToContainer(sLeaser, rCam, null);
@@ -271,8 +271,11 @@ public class BloodParticle : CosmeticSprite
     public override void ApplyPalette(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam, RoomPalette palette)
     {
         base.ApplyPalette(sLeaser, rCam, palette);
-        sLeaser.sprites[0].color = Color.Lerp(color, room.game.cameras[0].currentPalette.blackColor, palette.darkness * 0.8f);
-        sLeaser.sprites[1].color = Color.Lerp(color, room.game.cameras[0].currentPalette.blackColor, palette.darkness * 0.8f);
+        if (palette.blackColor != null)
+        {
+            sLeaser.sprites[0].color = Color.Lerp(color, palette.blackColor, palette.darkness * 0.8f);
+            sLeaser.sprites[1].color = Color.Lerp(color, palette.blackColor, palette.darkness * 0.8f);
+        }
     }
     public override void AddToContainer(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam, FContainer newContatiner)
     {

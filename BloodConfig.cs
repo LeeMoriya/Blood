@@ -108,20 +108,14 @@ public class BloodConfig : OptionInterface
 
             //Colors
             creatureColors = new Dictionary<string, Color>();
-            foreach (string name in ExtEnumBase.GetNames(typeof(CreatureTemplate.Type)))
+            foreach (string name in CreatureTemplate.Type.values.entries)
             {
+                //Debug.Log(name);
                 if (!BloodMod.creatureBlacklist.Contains(name))
                 {
-                    try
-                    {
-                        Color color = new Color(0.6f, 0f, 0f);
-                        BloodMod.creatureColors.TryGetValue(name, out color);
-                        creatureColors.Add(name, color);
-                    }
-                    catch (Exception e)
-                    {
-                        Debug.LogException(e);
-                    }
+                    Color color = new Color(0.6f, 0f, 0f);
+                    BloodMod.creatureColors.TryGetValue(name, out color);
+                    creatureColors.Add(name, color);
                 }
             }
             MenuLabel title = new MenuLabel(this, pages[0], "Select a creature to customise its blood color", new Vector2(manager.rainWorld.options.ScreenSize.x / 2, 710f), new Vector2(), false);
@@ -132,7 +126,7 @@ public class BloodConfig : OptionInterface
             int row = 0;
             int col = 0;
             float centerPos = (manager.rainWorld.options.ScreenSize.x / 2) - (60f * 15 / 2);
-            foreach (string name in ExtEnumBase.GetNames(typeof(CreatureTemplate.Type)))
+            foreach (string name in CreatureTemplate.Type.values.entries)
             {
                 if (!BloodMod.creatureBlacklist.Contains(name))
                 {
@@ -140,7 +134,6 @@ public class BloodConfig : OptionInterface
                     crit.roundedRect.size = new Vector2(50f, 50f);
                     crit.size = crit.roundedRect.size;
                     crit.name = name;
-
                     crit.symbolSprite.color = ReturnSpriteColor(name);
                     crit.borderColor = ReturnSpriteColor(name);
                     crit.fillColor = creatureColors[name];
@@ -347,6 +340,10 @@ public class BloodConfig : OptionInterface
                     if (critButtons[i].Selected)
                     {
                         text = critButtons[i].name;
+                        if (text == "Hazer")
+                        {
+                            text = "Hazer and Jellyfish";
+                        }
                     }
                 }
                 creatureName.text = text;
@@ -488,7 +485,14 @@ public class BloodConfig : OptionInterface
                 if (updateColor)
                 {
                     updateColor = false;
-                    fillColor = (menu as BloodDialog).creatureColors[name];
+                    try
+                    {
+                        fillColor = (menu as BloodDialog).creatureColors[name];
+                    }
+                    catch
+                    {
+                        //Debug.Log("FUUUUCK:   " + name);
+                    }
                 }
             }
         }
