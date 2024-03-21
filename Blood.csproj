@@ -35,17 +35,15 @@
     <DebugSymbols>true</DebugSymbols>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Assembly-CSharp-nstrip">
+      <HintPath>F:\Modding\Assembly-CSharp-nstrip.dll</HintPath>
+    </Reference>
     <Reference Include="BepInEx">
       <HintPath>F:\Steam Games\steamapps\common\Rain World\BepInEx\core\BepInEx.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="HOOKS-Assembly-CSharp">
       <HintPath>F:\Steam Games\steamapps\common\Rain World\BepInEx\plugins\HOOKS-Assembly-CSharp.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="STRIPPED-Assembly-CSharp, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>F:\Modding\STRIPPED-Assembly-CSharp.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -53,6 +51,9 @@
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
+    <Reference Include="Unity.Mathematics">
+      <HintPath>F:\Steam Games\steamapps\common\Rain World\RainWorld_Data\Managed\Unity.Mathematics.dll</HintPath>
+    </Reference>
     <Reference Include="UnityEngine">
       <HintPath>F:\Steam Games\steamapps\common\Rain World\RainWorld_Data\Managed\UnityEngine.dll</HintPath>
       <Private>False</Private>
@@ -75,6 +76,9 @@
     <Compile Include="BloodSave.cs" />
     <Compile Include="BloodSplatter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadata Include="Connected Services\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

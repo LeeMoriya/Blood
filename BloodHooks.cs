@@ -8,7 +8,7 @@ public class BloodHooks
 {
     public static void Hook()
     {
-        On.Spear.LodgeInCreature += Spear_LodgeInCreature;
+        On.Spear.LodgeInCreature_CollisionResult_bool += Spear_LodgeInCreature_CollisionResult_bool;
         On.Lizard.Bite += Lizard_Bite;
         On.BigNeedleWorm.Swish += BigNeedleWorm_Swish;
         On.Vulture.Carry += Vulture_Carry;
@@ -25,6 +25,16 @@ public class BloodHooks
         On.Rock.HitSomething += Rock_HitSomething;
         On.RainWorldGame.ctor += RainWorldGame_ctor;
         On.RainWorld.Update += RainWorld_Update;
+    }
+
+    private static void Spear_LodgeInCreature_CollisionResult_bool(On.Spear.orig_LodgeInCreature_CollisionResult_bool orig, Spear self, SharedPhysics.CollisionResult result, bool eu)
+    {
+        //Create an emitter when a create is impaled by a spear
+        orig.Invoke(self, result, eu);
+        if (self != null && self.stuckInChunk != null)
+        {
+            self.room.AddObject(new BloodEmitter(self, self.stuckInChunk, UnityEngine.Random.Range(5f, 8f), UnityEngine.Random.Range(1f, 3f)));
+        }
     }
 
     private static void Player_EatMeatUpdate(On.Player.orig_EatMeatUpdate orig, Player self, int graspIndex)
@@ -217,16 +227,6 @@ public class BloodHooks
         if (chunk != null && chunk.owner is Creature)
         {
             self.room.AddObject(new BloodEmitter(null, chunk, UnityEngine.Random.Range(1f, 5f), 0.08f));
-        }
-    }
-
-    private static void Spear_LodgeInCreature(On.Spear.orig_LodgeInCreature orig, Spear self, SharedPhysics.CollisionResult result, bool eu)
-    {
-        //Create an emitter when a create is impaled by a spear
-        orig.Invoke(self, result, eu);
-        if (self != null && self.stuckInChunk != null)
-        {
-            self.room.AddObject(new BloodEmitter(self, self.stuckInChunk, UnityEngine.Random.Range(5f, 8f), UnityEngine.Random.Range(1f, 3f)));
         }
     }
 }
