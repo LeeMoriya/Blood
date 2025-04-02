@@ -42,6 +42,16 @@ public class BloodEmitter : UpdatableAndDeletable
                 //Get creature blood color from dictionary
                 if (BloodMod.creatureColors.ContainsKey((this.chunk.owner as Creature).Template.type.value))
                 {
+                    if (ModManager.Watcher)
+                    {
+                        if ((this.chunk.owner is Lizard) && (this.chunk.owner as Lizard).rotModule != null && BloodMod.creatureColors.ContainsKey("Rattler"))
+                        {
+                            creatureColor = BloodMod.creatureColors["Rattler"];
+                            splatterColor = "Rattler";
+                            return;
+                        }
+                    }
+
                     creatureColor = BloodMod.creatureColors[(this.chunk.owner as Creature).Template.type.value];
                     splatterColor = (this.chunk.owner as Creature).Template.type.value;
                 }

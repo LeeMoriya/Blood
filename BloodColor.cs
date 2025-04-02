@@ -24,19 +24,27 @@ public static class BloodColor
             //If the creature is modded, add it to the colors Dictionary with a default color
             if (!BloodMod.creatureBlacklist.Contains(name))
             {
+                bool newCrit = false;
                 if (!BloodMod.defaultColors.ContainsKey(name))
                 {
                     BloodMod.defaultColors.Add(name, new Color(0.5f, 0f, 0f));
+                    newCrit = true;
                 }
                 if (!BloodMod.vibrantColors.ContainsKey(name))
                 {
                     BloodMod.vibrantColors.Add(name, new Color(0.5f, 0f, 0f));
+                    newCrit = true;
                 }
                 if (!BloodMod.creatureColors.ContainsKey(name))
                 {
                     BloodMod.creatureColors.Add(name, new Color(0.5f, 0f, 0f));
+                    newCrit = true;
                 }
                 BloodMod.bloodTextures.Add(name, new Texture2D(BloodMod.w, BloodMod.h));
+                if (newCrit)
+                {
+                    Debug.Log($"This creature does not have a default creature: {name}");
+                }
             }
         }
 
@@ -44,9 +52,9 @@ public static class BloodColor
         //Get colors from texture
         Color[] defaultColors = BloodMod.bloodTex.GetPixels();
         //Modify the colors to match each one in the dictionary
-        foreach (KeyValuePair<string, Color> creatureColor in creatureColors)
+        foreach (KeyValuePair<string, Color> creatureColor in BloodMod.creatureColors)
         {
-            //Debug.Log("Attempting to create blood texture for " + creatureColor.Key + "...");
+            Debug.Log("Attempting to create blood texture for " + creatureColor.Key + "...");
             try
             {
                 Color[] newColors = defaultColors;
@@ -66,12 +74,12 @@ public static class BloodColor
                 if (Futile.atlasManager.DoesContainElementWithName(creatureColor.Key + "Tex"))
                 {
                     Futile.atlasManager.UnloadAtlas(creatureColor.Key + "Tex");
-                    //Debug.Log($"BLOOD: Remove old Texture for: {creatureColor.Key}");
+                    Debug.Log($"BLOOD: Remove old Texture for: {creatureColor.Key}");
                 }
                 Futile.atlasManager.LoadAtlasFromTexture(creatureColor.Key + "Tex", BloodMod.bloodTextures[creatureColor.Key], false);
                 if (Futile.atlasManager.DoesContainElementWithName(creatureColor.Key + "Tex"))
                 {
-                    //Debug.Log($"BLOOD: Success: {creatureColor.Key} - R: {creatureColor.Value.r} G: {creatureColor.Value.g} B: {creatureColor.Value.b}");
+                    Debug.Log($"BLOOD: Success: {creatureColor.Key} - R: {creatureColor.Value.r} G: {creatureColor.Value.g} B: {creatureColor.Value.b}");
                 }
             }
             catch
