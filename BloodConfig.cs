@@ -75,12 +75,14 @@ public class BloodConfig : OptionInterface
         public bool opening, closing;
 
         public float leftAnchor;
+        public int extraPages = 0;
+        public int thisPage = 0;
 
         public BloodConfig config;
         public List<CreatureButton> critButtons;
         public Dictionary<string, Color> creatureColors;
         public RoundedRect rect;
-        public MenuLabel creatureName;
+        public MenuLabel creatureName, pageNumber;
         public string currentCreature = "Slugcat";
         public CheckBox showColorToggle;
         public bool showColors;
@@ -95,6 +97,7 @@ public class BloodConfig : OptionInterface
         public Color lastColor = new Color(0.65f, 0f, 0f);
 
         public SimpleButton close, discard, realisticPreset, vibrantPreset;
+        public SymbolButton leftButton, rightButton;
 
         public BloodDialog(ProcessManager manager, BloodConfig config) : base(manager)
         {
@@ -125,12 +128,15 @@ public class BloodConfig : OptionInterface
             critButtons = new List<CreatureButton>();
             int row = 0;
             int col = 0;
+            int index = 0;
             float centerPos = (manager.rainWorld.options.ScreenSize.x / 2) - (60f * 15 / 2);
             foreach (string name in CreatureTemplate.Type.values.entries)
             {
                 if (!BloodMod.creatureBlacklist.Contains(name))
                 {
-                    CreatureButton crit = new CreatureButton(this, pages[0], ReturnCreatureSprite(name), $"crit-{name}", new Vector2(centerPos + (60f * col), 630f - (60f * row)));
+                    float offscreen = index >= 75 ? (index / 75) * 2000f : 0f;
+
+                    CreatureButton crit = new CreatureButton(this, pages[0], ReturnCreatureSprite(name), $"crit-{name}", new Vector2(centerPos + offscreen + (60f * col), 630f - (60f * row)));
                     crit.roundedRect.size = new Vector2(50f, 50f);
                     crit.size = crit.roundedRect.size;
                     crit.name = name;
@@ -139,9 +145,15 @@ public class BloodConfig : OptionInterface
                     crit.fillColor = creatureColors[name];
 
                     col++;
+                    index++;
                     if (col == 15)
                     {
                         row++;
+                        if (row == 5)
+                        {
+                            row = 0;
+                            extraPages++;
+                        }
                         col = 0;
                     }
                     critButtons.Add(crit);
@@ -149,7 +161,7 @@ public class BloodConfig : OptionInterface
                 }
             }
 
-            creatureName = new MenuLabel(this, pages[0], "", new Vector2(manager.rainWorld.options.ScreenSize.x / 2, critButtons.Last().pos.y - 25f), new Vector2(), true);
+            creatureName = new MenuLabel(this, pages[0], "", new Vector2(manager.rainWorld.options.ScreenSize.x / 2, 350f), new Vector2(), true);
             creatureName.label.color = new Color(0.7f, 0.7f, 0.7f);
             pages[0].subObjects.Add(creatureName);
 
@@ -208,6 +220,17 @@ public class BloodConfig : OptionInterface
 
             vibrantPreset = new SimpleButton(this, pages[0], "VIBRANT", "VIBRANT", realisticPreset.pos + new Vector2(0f, -50f), new Vector2(100f, 30f));
             pages[0].subObjects.Add(vibrantPreset);
+
+            leftButton = new SymbolButton(this, pages[0], "keyArrowB", "PAGELEFT", new Vector2(rect.pos.x + rect.size.x - 150f, title.pos.y - 15f));
+            leftButton.symbolSprite.rotation = 270f;
+            pages[0].subObjects.Add(leftButton);
+
+            rightButton = new SymbolButton(this, pages[0], "keyArrowB", "PAGERIGHT", new Vector2(rect.pos.x + rect.size.x - 80f, title.pos.y - 15f));
+            rightButton.symbolSprite.rotation = 90f;
+            pages[0].subObjects.Add(rightButton);
+
+            pageNumber = new MenuLabel(this, pages[0], "1/1", new Vector2(rect.pos.x + rect.size.x - 100f, 708f), new Vector2(), false);
+            pages[0].subObjects.Add(pageNumber);
 
             opening = true;
             targetAlpha = 1;
@@ -285,6 +308,34 @@ public class BloodConfig : OptionInterface
                 picker.valueColor = currentColor;
                 lastColor = currentColor;
             }
+            if(message == "PAGELEFT")
+            {
+                for (int i = 0; i < critButtons.Count; i++)
+                {
+                    critButtons[i].pos.x += 2000f;
+                    critButtons[i].lastPos.x = critButtons[i].pos.x;
+                }
+                thisPage--;
+                if (thisPage < 0)
+                {
+                    thisPage = 0;
+                }
+                PlaySound(SoundID.MENU_Button_Standard_Button_Pressed);
+            }
+            if(message == "PAGERIGHT")
+            {
+                for(int i = 0; i < critButtons.Count; i++)
+                {
+                    critButtons[i].pos.x -= 2000f;
+                    critButtons[i].lastPos.x = critButtons[i].pos.x;
+                }
+                thisPage++;
+                if (thisPage >= extraPages)
+                {
+                    thisPage = extraPages;
+                }
+                PlaySound(SoundID.MENU_Button_Standard_Button_Pressed);
+            }
         }
 
         public override void GrafUpdate(float timeStacker)
@@ -346,8 +397,19 @@ public class BloodConfig : OptionInterface
                         }
                     }
                 }
-                creatureName.text = text;
+                creatureName.text = Regex.Replace(text, "([a-z])([A-Z])", "$1 $2");
             }
+
+            leftButton.buttonBehav.greyedOut = thisPage == 0;
+            rightButton.buttonBehav.greyedOut = extraPages == thisPage;
+
+            if (extraPages == 0)
+            {
+                leftButton.buttonBehav.greyedOut = true;
+                rightButton.buttonBehav.greyedOut = true;
+            }
+
+            pageNumber.text = $"{thisPage + 1}/{extraPages + 1}";
         }
 
         public static string ReturnCreatureSprite(string critName)

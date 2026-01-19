@@ -203,6 +203,28 @@ public class BloodHooks
                     }
                 }
             }
+            if (BloodMod.spikeCompat)
+            {
+                foreach (var item in self.updateList)
+                {
+                    if(item is RegionKit.Modules.Objects.Spike)
+                    {
+                        var spike = item as RegionKit.Modules.Objects.Spike;
+                        if(spike.impaledCreature != null && spike.impaledChunk != null)
+                        {
+                            if (BloodMod.creatureColors.ContainsKey(spike.impaledCreature.Template.type.value))
+                            {
+                                if (spike.tipColor != BloodMod.creatureColors[spike.impaledCreature.Template.type.value])
+                                {
+                                    spike.tipColor = BloodMod.creatureColors[spike.impaledCreature.Template.type.value];
+                                    spike.updateTipColor = true;
+                                    Debug.Log("Changed spike tip color");
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
         catch(Exception e)
         {

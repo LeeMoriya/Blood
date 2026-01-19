@@ -35,6 +35,9 @@
     <DebugSymbols>true</DebugSymbols>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="0Harmony">
+      <HintPath>F:\Steam Games\steamapps\common\Rain World\BepInEx\core\0Harmony.dll</HintPath>
+    </Reference>
     <Reference Include="BepInEx">
       <HintPath>F:\Steam Games\steamapps\common\Rain World\BepInEx\core\BepInEx.dll</HintPath>
       <Private>False</Private>
@@ -46,6 +49,9 @@
     <Reference Include="PUBLIC-Assembly-CSharp">
       <HintPath>F:\Steam Games\steamapps\common\Rain World\BepInEx\utils\PUBLIC-Assembly-CSharp.dll</HintPath>
       <Private>False</Private>
+    </Reference>
+    <Reference Include="RegionKit">
+      <HintPath>..\RegionKit\mod\newest\plugins\RegionKit.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
